@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(0, 0%, 5%);
+
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 5%);
+
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 5%);
+
+  --primary: hsl(284, 80%, 44%);
+  --primary-foreground: hsl(0, 0%, 98%);
+
+  --secondary: hsl(0, 0%, 96%);
+  --secondary-foreground: hsl(0, 0%, 5%);
+
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: hsl(0, 0%, 45%);
+
+  --accent: hsl(0, 0%, 96%);
+  --accent-foreground: hsl(0, 0%, 5%);
+
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+
+  --border: hsl(0, 0%, 92%);
+  --input: hsl(0, 0%, 85%);
+  --ring: hsl(0, 0%, 76%);
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: hsl(240, 3%, 6%);
+  --foreground: hsl(0, 0%, 98%);
+
+  --card: hsl(210, 6%, 7%);
+  --card-foreground: hsl(0, 0%, 98%);
+
+  --popover: hsl(210, 6%, 7%);
+  --popover-foreground: hsl(0, 0%, 98%);
+
+  --primary: hsl(233, 78%, 55%);
+  --primary-foreground: hsl(0, 0%, 98%);
+
+  --secondary: hsl(240, 5%, 15%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+
+  --muted: hsl(230, 5%, 22%);
+  --muted-foreground: hsl(235, 5%, 49%);
+
+  --accent: hsl(233, 45%, 14%);
+  --accent-foreground: hsl(0, 0%, 98%);
+
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+
+  --border: hsl(240, 5%, 12%);
+  --input: hsl(240, 4%, 18%);
+  --ring: hsl(233, 78%, 40%);
+}
+
+body {
+  background-color: #f7fafc; /* Tailwind's bg-gray-50 */
+  padding: 50px 100px 0px 100px;
+}
