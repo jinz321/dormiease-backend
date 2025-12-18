@@ -175,7 +175,13 @@ export class UserController {
   // ======================
   static async updateProfile(req: Request, res: Response) {
     try {
-      const { userId, name, email, password } = req.body;
+      const { userId, name, email, password, profile_image } = req.body;
+
+      console.log('UpdateProfile: Received request for userId:', userId);
+      console.log('UpdateProfile: Has profile_image?', !!profile_image);
+      if (profile_image) {
+        console.log('UpdateProfile: profile_image length:', profile_image.length);
+      }
 
       if (!userId) {
         return res.status(400).json({ message: "UserId is required" });
@@ -191,16 +197,24 @@ export class UserController {
       const updates: any = {};
       if (name) updates.name = name;
       if (email) updates.email = email;
+      if (profile_image) {
+        updates.profile_image = profile_image;
+        console.log('UpdateProfile: Adding profile_image to updates');
+      }
 
       if (password) {
         updates.password = await hash(password, 10);
       }
 
+      console.log('UpdateProfile: Update keys:', Object.keys(updates));
       await userRef.update(updates);
+      console.log('UpdateProfile: Firestore update complete');
 
       // Fetch updated user data to return
       const updatedDoc = await userRef.get();
       const updatedData = updatedDoc.data();
+
+      console.log('UpdateProfile: Updated data has profile_image?', !!updatedData?.profile_image);
 
       return res.status(200).json({
         message: "Profile updated successfully",
@@ -209,6 +223,7 @@ export class UserController {
           name: updatedData?.name,
           email: updatedData?.email,
           studentId: updatedData?.student_id,
+          profile_image: updatedData?.profile_image,
         }
       });
 

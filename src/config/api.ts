@@ -1,9 +1,9 @@
 // API Configuration for Admin Panel
-// Change this to your server's IP address when accessing from other devices
 
-const API_BASE_URL = 'http://localhost:3000/api';
+// ✅ PRODUCTION: Render Cloud URL (works anywhere!)
+const API_BASE_URL = 'https://dormiease-backend.onrender.com/api';
 
-// For network access, use your computer's IP address:
+// 🔧 LOCAL DEVELOPMENT: Uncomment this when testing locally
 // const API_BASE_URL = 'http://192.168.100.33:3000/api';
 
 export { API_BASE_URL };
