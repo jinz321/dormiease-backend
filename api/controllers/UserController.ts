@@ -113,19 +113,30 @@ export class UserController {
       const userDoc = usersSnap.docs[0];
       const userData = userDoc.data();
 
+      console.log('Signin: User found:', userDoc.id);
+      console.log('Signin: User has profile_image?', !!userData.profile_image);
+      if (userData.profile_image) {
+        console.log('Signin: profile_image length:', userData.profile_image.length);
+      }
+
       const passwordMatch = await compare(password, userData.password);
 
       if (!passwordMatch) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
+      const userResponse = {
+        id: userDoc.id,
+        name: userData.name,
+        email: userData.email,
+        studentId: userData.student_id,
+        profile_image: userData.profile_image, // Include profile photo
+      };
+
+      console.log('Signin: Returning user with profile_image?', !!userResponse.profile_image);
+
       return res.status(200).json({
-        user: {
-          id: userDoc.id,
-          name: userData.name,
-          email: userData.email,
-          studentId: userData.student_id,
-        },
+        user: userResponse,
       });
 
     } catch (error) {
