@@ -185,7 +185,10 @@ export default function NotificationManagementPage() {
                                                             {notif.message}
                                                         </p>
                                                     </div>
-                                                    <button className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
+                                                    <button
+                                                        onClick={() => handleDeleteNotification(notif.id)}
+                                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500"
+                                                    >
                                                         <Trash2 size={16} />
                                                     </button>
                                                 </div>
