@@ -13,6 +13,7 @@ import MaintenanceManagementPage from './pages/MaintenanceManagementPage'
 import NotificationManagementPage from './pages/NotificationPage'
 import FeeManagementPage from './pages/FeeManagementPage'
 import ReportsPage from './pages/ReportsPage'
+import DashboardPage from './pages/DashboardPage'
 
 import LandingPage from './pages/LandingPage'
 
@@ -26,7 +27,7 @@ function App() {
             <Route path="/login" element={<AdminSignInForm />} />
 
             <Route path="/" element={<AppLayout />}>
-                <Route path="home" element={<div>Welcome Dashboard</div>} />
+                <Route path="home" element={<DashboardPage />} />
                 <Route path="hostels" element={<HostelManagementPage />} />
                 <Route path="rooms" element={<RoomManagementPage />} />
                 <Route path="room-applications" element={<RoomApplicationPage />} />
@@ -36,8 +37,8 @@ function App() {
                 <Route path="notifications" element={<NotificationManagementPage />} />
                 <Route path="payments" element={<FeeManagementPage />} />
                 <Route path="reports" element={<ReportsPage />} />
-                <Route index element={<div>Welcome Dashboard</div>} />
-                <Route path="/home" element={<div>Welcome Dashboard</div>} />
+                <Route index element={<DashboardPage />} />
+                <Route path="/home" element={<DashboardPage />} />
             </Route>
         </Routes>
     )
