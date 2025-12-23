@@ -36,11 +36,11 @@ export default function TopBar({ userName }: Props) {
     const navItems = [
         { path: "/home", label: "Home", icon: Home },
         { path: "/hostels", label: "Hostels", icon: Building2 },
-        { path: "/hostel-applications", label: "Applications", icon: FileText, badge: 3 },
+        { path: "/hostel-applications", label: "Applications", icon: FileText },
         { path: "/rooms", label: "Rooms", icon: Bed },
-        { path: "/complaints", label: "Complaints", icon: AlertCircle, badge: 5 },
-        { path: "/maintenances", label: "Maintenance", icon: Wrench, badge: 2 },
-        { path: "/notifications", label: "Notifications", icon: Bell, badge: 8 },
+        { path: "/complaints", label: "Complaints", icon: AlertCircle },
+        { path: "/maintenances", label: "Maintenance", icon: Wrench },
+        { path: "/notifications", label: "Notifications", icon: Bell },
         { path: "/payments", label: "Payments", icon: CreditCard },
         { path: "/reports", label: "Reports", icon: BarChart3 }
     ]
