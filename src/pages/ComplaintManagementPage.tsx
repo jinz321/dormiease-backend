@@ -57,7 +57,11 @@ export default function ComplaintManagementPage() {
             }
 
             const url = UPDATE_COMPLAINTS_API + selectedComplaint.id;
-            const resolve = await axios.put(url, { adminId: admin.id, reply: replyText });
+            const resolve = await axios.put(url, {
+                adminId: admin.id,
+                reply: replyText,
+                status: 'resolved'
+            });
 
             if (resolve.status == 200) {
                 setComplaints(prev =>
