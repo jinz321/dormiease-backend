@@ -24,7 +24,7 @@ import {
   Select,
 } from "@mui/material"
 import type { SelectChangeEvent } from "@mui/material"
-import { Bed, Plus, Hash, Building2, Users } from "lucide-react"
+import { Bed, Plus, Building2, Users } from "lucide-react"
 
 import type { Hostel, Room } from "@/lib/types"
 
@@ -131,40 +131,49 @@ export default function RoomManagementPage() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         {/* ================= ROOM TABLE ================= */}
-        <Card className="lg:col-span-2 shadow-xl bg-white/80 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5 border-b border-gray-100/50 p-6">
-            <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary flex items-center gap-2">
-              <Bed className="text-primary" /> Room Management
-            </CardTitle>
+        <Card className="lg:col-span-2 shadow-xl bg-white rounded-2xl overflow-hidden border-none ring-1 ring-gray-100">
+          <CardHeader className="bg-white border-b border-gray-100 p-6 flex flex-row items-center justify-between">
+            <div className="flex items-center gap-3">
+              <CardTitle className="text-xl font-bold text-gray-800">All Rooms</CardTitle>
+              <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold">{rooms.length} Rooms</span>
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50/50 border-b border-gray-100">
-                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Room Name</TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Max Size</TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Hostel</TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-center">Occupancy</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wide">Room Name</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wide">Max Size</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wide">Hostel</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wide text-center">Occupancy</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rooms.map((room) => (
-                  <TableRow key={room.id} className="hover:bg-white/40 transition-colors border-b border-gray-50">
-                    <TableCell className="px-6 py-4 font-medium text-gray-900">{room.name}</TableCell>
-                    <TableCell className="px-6 py-4 text-gray-600">
-                      <span className="flex items-center gap-1"><Hash size={14} /> {room.maxSize} Beds</span>
+                  <TableRow key={room.id} className="hover:bg-gray-50/80 transition-all border-b border-gray-100 group">
+                    <TableCell className="px-6 py-4">
+                      <span className="font-bold text-gray-800 text-base">{room.name}</span>
                     </TableCell>
-                    <TableCell className="px-6 py-4 text-gray-600">
+                    <TableCell className="px-6 py-4">
+                      <div className="flex items-center text-gray-600 font-medium">
+                        <Bed size={18} className="mr-2 text-gray-400 group-hover:text-primary transition-colors" />
+                        {room.maxSize} Beds
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
                       {room.hostelId !== null
-                        ? <span className="flex items-center gap-1"><Building2 size={14} /> {hostelMap[room.hostelId] ?? "—"}</span>
+                        ? <span className="inline-flex items-center bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium">
+                          <Building2 size={14} className="mr-2 text-gray-500" />
+                          {hostelMap[room.hostelId] ?? "—"}
+                        </span>
                         : "—"}
                     </TableCell>
                     <TableCell className="px-6 py-4 text-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${room.currentUsers >= (room.maxSize || 0)
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-green-100 text-green-800'
+                      <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold border ${room.currentUsers >= (room.maxSize || 0)
+                        ? 'bg-red-50 text-red-700 border-red-100'
+                        : 'bg-green-50 text-green-700 border-green-100'
                         }`}>
-                        <Users size={12} className="mr-1" />
+                        <Users size={14} className={`mr-2 ${room.currentUsers >= (room.maxSize || 0) ? 'text-red-500' : 'text-green-600'}`} />
                         {room.currentUsers} / {room.maxSize}
                       </span>
                     </TableCell>
@@ -176,19 +185,26 @@ export default function RoomManagementPage() {
         </Card>
 
         {/* ================= ADD ROOM FORM ================= */}
-        <Card className="shadow-2xl bg-white/90 backdrop-blur-xl border border-white/20 h-fit rounded-2xl">
-          <CardHeader className="bg-primary/5 border-b border-gray-100 p-6">
-            <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <Plus className="text-primary" /> Add New Room
-            </CardTitle>
+        <Card className="shadow-xl bg-white border-none ring-1 ring-gray-100 h-fit sticky top-24 rounded-2xl">
+          <CardHeader className="p-6 pb-2">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Plus className="text-primary" size={24} />
+              </div>
+              <CardTitle className="text-xl font-bold text-gray-800">
+                Add New Room
+              </CardTitle>
+            </div>
+            <p className="text-sm text-gray-500 pl-1">Create a new room in a hostel.</p>
           </CardHeader>
 
           {/* NO <form> tag → prevents refresh */}
           <CardContent className="space-y-4">
 
             <div>
-              <Label>Room Name</Label>
+              <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 block">Room Name</Label>
               <Input
+                className="h-11 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20"
                 placeholder="e.g. Room C"
                 value={newRoom.name}
                 onChange={(e) =>
@@ -201,8 +217,9 @@ export default function RoomManagementPage() {
             </div>
 
             <div>
-              <Label>Max Size</Label>
+              <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 block">Max Size</Label>
               <Input
+                className="h-11 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20"
                 type="number"
                 placeholder="e.g. 4"
                 value={newRoom.maxSize ?? ""}
@@ -216,10 +233,11 @@ export default function RoomManagementPage() {
             </div>
 
             <FormControl fullWidth>
-              <InputLabel id="hostel-select-label">
+              <InputLabel id="hostel-select-label" className="text-sm font-semibold text-gray-600">
                 Select Hostel
               </InputLabel>
               <Select
+                className="h-11 rounded-xl bg-gray-50/50 border-gray-200"
                 labelId="hostel-select-label"
                 value={
                   newRoom.hostelId ?? ""
@@ -248,7 +266,7 @@ export default function RoomManagementPage() {
             <Button
               type="button"
               variant="contained"
-              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 shadow-lg rounded-xl"
+              className="w-full bg-[#2196F3] hover:bg-blue-600 text-white font-bold py-3.5 shadow-lg rounded-xl uppercase tracking-wide text-sm transition-transform active:scale-95"
               onClick={handleAddRoom}
             >
               Add Room
