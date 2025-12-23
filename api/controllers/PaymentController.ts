@@ -97,6 +97,19 @@ export class PaymentController {
         }
 
         try {
+            // Get total count first
+            const countSnapshot = await db.collection('payments')
+                .where('user_id', '==', userId)
+                .count()
+                .get();
+            const total = countSnapshot.data().count;
+
+            // If no payments, return empty array
+            if (total === 0) {
+                res.status(200).json([]);
+                return;
+            }
+
             const snapshot = await db.collection('payments')
                 .where('user_id', '==', userId)
                 .orderBy('created_at', 'desc')
