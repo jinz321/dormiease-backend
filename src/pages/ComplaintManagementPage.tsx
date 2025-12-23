@@ -1,8 +1,19 @@
 import { useEffect, useState } from "react"
 import axios from 'axios';
 import { Button } from "@mui/material";
-import { Check, ShieldAlert, MessageCircle } from "lucide-react";
-
+import {
+    Check,
+    ShieldAlert,
+    MessageCircle,
+    User,
+    Calendar,
+    AlertCircle,
+    X,
+    Send,
+    Plus,
+    Clock,
+    CheckCircle2
+} from "lucide-react"
 
 type Complaint = {
     id: number
@@ -19,27 +30,7 @@ const UPDATE_COMPLAINTS_API = 'http://localhost:3000/api/admin/update-complaint/
 const SUBMIT_COMPLAINT_API = 'http://localhost:3000/api/admin/submit-complaint';
 
 export default function ComplaintManagementPage() {
-    const [complaints, setComplaints] = useState<Complaint[]>([
-        // {
-        //     id: 1,
-        //     studentName: "Ali Karim",
-        //     studentId: "S001",
-        //     title: "Fan not working",
-        //     details: "The ceiling fan in Room 12 is not functioning.",
-        //     reply: "",
-        //     status: "open"
-        // },
-        // {
-        //     id: 2,
-        //     studentName: "Nora Lee",
-        //     studentId: "S002",
-        //     title: "Water leakage",
-        //     details: "There is a leaking pipe in the shared bathroom.",
-        //     reply: "",
-        //     status: "resolved"
-        // }
-    ])
-
+    const [complaints, setComplaints] = useState<Complaint[]>([])
     const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null)
     const [replyText, setReplyText] = useState("")
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -47,6 +38,7 @@ export default function ComplaintManagementPage() {
     const [complaintTitle, setComplaintTitle] = useState("");
     const [complaintDetails, setComplaintDetails] = useState("");
     const [studentId, setStudentId] = useState("");
+    const [loading, setLoading] = useState(true);
 
     const handleResolve = async () => {
         if (!selectedComplaint || !replyText.trim()) return;
@@ -61,15 +53,8 @@ export default function ComplaintManagementPage() {
             const admin = JSON.parse(adminStr);
             if (!admin.id) {
                 alert("Admin ID not found. Please log in again.");
-                console.error("Admin object:", admin);
                 return;
             }
-
-            console.log("Resolving complaint:", {
-                complaintId: selectedComplaint.id,
-                adminId: admin.id,
-                reply: replyText
-            });
 
             const url = UPDATE_COMPLAINTS_API + selectedComplaint.id;
             const resolve = await axios.put(url, { adminId: admin.id, reply: replyText });
@@ -84,14 +69,10 @@ export default function ComplaintManagementPage() {
                 );
                 alert("Complaint resolved successfully!");
                 closeDialog();
-            } else {
-                alert('Something went wrong');
             }
         } catch (error: any) {
             console.error("Failed to resolve complaint", error);
-            console.error("Error response:", error.response?.data);
-            const errorMsg = error.response?.data?.message || "Failed to resolve complaint";
-            alert(errorMsg);
+            alert(error.response?.data?.message || "Failed to resolve complaint");
         }
     }
 
@@ -124,8 +105,14 @@ export default function ComplaintManagementPage() {
     }
 
     const handleFetchComplaints = async () => {
-        const complaints = await axios.get(FETCH_ALL_COMPLAINTS_API);
-        setComplaints(complaints.data);
+        try {
+            const complaints = await axios.get(FETCH_ALL_COMPLAINTS_API);
+            setComplaints(complaints.data);
+            setLoading(false);
+        } catch (error) {
+            console.error(error);
+            setLoading(false);
+        }
     }
 
     const handleClickCreateComplaint = () => {
@@ -135,6 +122,7 @@ export default function ComplaintManagementPage() {
     const handleCancelCreateComplaint = () => {
         setComplaintTitle("");
         setComplaintDetails("");
+        setStudentId("");
         setOpenCreateComplaintModal(false);
     }
 
@@ -142,215 +130,291 @@ export default function ComplaintManagementPage() {
         handleFetchComplaints();
     }, []);
 
+    if (loading) {
+        return (
+            <div className="pt-24 pb-10 px-4 min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+                    <div className="text-gray-600 text-lg font-semibold">Loading complaints...</div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Fixed Navigation Bar */}
-
-            {/* Main Content */}
-            <div className="pt-20 pb-10 px-4">
-                <div className="max-w-6xl mx-auto">
-                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                        <div className="px-8 py-6 border-b border-gray-100/50 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div>
-                                <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary flex items-center gap-2">
-                                    <ShieldAlert className="text-primary" /> Complaint List
-                                </h2>
-                                <p className="text-gray-500 text-sm mt-1">Review and resolve maintenance & grievance reports</p>
+        <div className="pt-24 pb-10 px-4 min-h-screen">
+            <div className="max-w-7xl mx-auto space-y-8">
+                {/* Page Header */}
+                <div className="flex items-center justify-between">
+                    <div className="text-white">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                                <ShieldAlert className="text-white" size={24} />
                             </div>
-
-                            <Button
-                                className="bg-primary hover:bg-primary/90 shadow-lg rounded-xl px-6"
-                                variant="contained"
-                                onClick={handleClickCreateComplaint}
-                            >
-                                Submit New Complaint
-                            </Button>
-                        </div>
-                        <div className="p-6">
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full">
-                                    <thead>
-                                        <tr className="border-b border-gray-100">
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student Name</th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student ID</th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Title</th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Details</th>
-                                            <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-50">
-                                        {complaints.map((complaint) => (
-                                            <tr key={complaint.id} className="hover:bg-white/50 transition-colors">
-                                                <td className="px-6 py-4 font-medium text-gray-900">{complaint.studentName || "-"}</td>
-                                                <td className="px-6 py-4 text-gray-500 font-mono text-xs">{complaint.studentId || "-"}</td>
-                                                <td className="px-6 py-4 text-gray-800 font-medium">{complaint.title}</td>
-                                                <td className="px-6 py-4 text-gray-600 max-w-xs truncate">{complaint.details}</td>
-                                                <td className="px-6 py-4 text-center">
-                                                    {complaint.status === "open" ? (
-                                                        <button
-                                                            onClick={() => openDialog(complaint)}
-                                                            className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 mx-auto"
-                                                        >
-                                                            <MessageCircle size={16} /> Reply
-                                                        </button>
-                                                    ) : (
-                                                        <span className="flex items-center justify-center text-green-600 font-bold text-sm gap-1">
-                                                            <Check size={16} /> Resolved
-                                                        </span>
-                                                    )}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold w-fit ${complaint.status === "open"
-                                                        ? "bg-red-100 text-red-700"
-                                                        : "bg-green-100 text-green-700"
-                                                        }`}>
-                                                        {complaint.status === "open" ? (
-                                                            <>⚠️ Open</>
-                                                        ) : (
-                                                            <>✅ Done</>
-                                                        )}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                            <div>
+                                <h1 className="text-3xl font-bold tracking-tight">Complaints Management</h1>
+                                <p className="text-white/80 text-sm">Review and resolve student grievances</p>
                             </div>
                         </div>
                     </div>
+                    <Button
+                        className="bg-white text-primary hover:bg-white/90 shadow-lg rounded-xl px-6 py-3 font-bold"
+                        variant="contained"
+                        onClick={handleClickCreateComplaint}
+                        startIcon={<Plus size={20} />}
+                    >
+                        Submit New Complaint
+                    </Button>
                 </div>
+
+                {/* Complaints Grid */}
+                {complaints.length === 0 ? (
+                    <div className="bg-white rounded-2xl shadow-xl p-16 text-center">
+                        <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+                            <ShieldAlert size={40} className="text-gray-300" />
+                        </div>
+                        <p className="text-gray-400 font-medium text-lg">No complaints yet</p>
+                        <p className="text-gray-300 text-sm mt-1">All student grievances will appear here</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-6">
+                        {complaints.map((complaint) => (
+                            <div
+                                key={complaint.id}
+                                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100"
+                            >
+                                <div className="p-6">
+                                    <div className="flex items-start justify-between gap-4">
+                                        {/* Left: Complaint Info */}
+                                        <div className="flex-1 space-y-4">
+                                            {/* Header */}
+                                            <div className="flex items-start gap-4">
+                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center flex-shrink-0">
+                                                    <User className="text-purple-600" size={24} />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="text-xl font-bold text-gray-800 mb-1">{complaint.title}</h3>
+                                                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <User size={14} />
+                                                            <span className="font-medium">{complaint.studentName || "Unknown"}</span>
+                                                        </div>
+                                                        <span className="text-gray-300">•</span>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="font-mono text-xs">{complaint.studentId || "N/A"}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Details */}
+                                            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                                                <p className="text-gray-700 leading-relaxed">{complaint.details}</p>
+                                            </div>
+
+                                            {/* Reply if resolved */}
+                                            {complaint.status === "resolved" && complaint.reply && (
+                                                <div className="bg-green-50 rounded-xl p-4 border border-green-100">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <CheckCircle2 className="text-green-600" size={16} />
+                                                        <span className="text-xs font-bold text-green-700 uppercase">Admin Reply</span>
+                                                    </div>
+                                                    <p className="text-green-800 text-sm leading-relaxed">{complaint.reply}</p>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Right: Status & Action */}
+                                        <div className="flex flex-col items-end gap-3">
+                                            {/* Status Badge */}
+                                            <span className={`
+                                                px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2
+                                                ${complaint.status === "open"
+                                                    ? "bg-red-100 text-red-700 border border-red-200"
+                                                    : "bg-green-100 text-green-700 border border-green-200"
+                                                }
+                                            `}>
+                                                {complaint.status === "open" ? (
+                                                    <>
+                                                        <AlertCircle size={14} />
+                                                        Open
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Check size={14} />
+                                                        Resolved
+                                                    </>
+                                                )}
+                                            </span>
+
+                                            {/* Action Button */}
+                                            {complaint.status === "open" && (
+                                                <button
+                                                    onClick={() => openDialog(complaint)}
+                                                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2"
+                                                >
+                                                    <MessageCircle size={16} />
+                                                    Reply & Resolve
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {/* Dialog/Modal */}
+            {/* Reply Dialog */}
             {isDialogOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    {/* Background overlay */}
-                    <div
-                        className="fixed inset-0 transition-opacity"
-                        onClick={closeDialog}
-                    ></div>
-
-                    {/* Dialog content */}
-                    <div className="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-auto">
-                        <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-medium text-gray-900">Reply to Complaint</h3>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto animate-in zoom-in duration-200">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-5 rounded-t-2xl">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                        <MessageCircle className="text-white" size={20} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white">Reply to Complaint</h3>
+                                        <p className="text-white/80 text-sm">Provide resolution details</p>
+                                    </div>
+                                </div>
                                 <button
                                     onClick={closeDialog}
-                                    className="text-gray-400 hover:text-gray-600"
+                                    className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
                                 >
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
+                                    <X size={20} />
                                 </button>
                             </div>
+                        </div>
 
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                                    <input
-                                        type="text"
-                                        value={selectedComplaint?.title || ""}
-                                        readOnly
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Details</label>
-                                    <textarea
-                                        value={selectedComplaint?.details || ""}
-                                        readOnly
-                                        rows={3}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 resize-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Your Reply</label>
-                                    <textarea
-                                        placeholder="Type your reply here..."
-                                        value={replyText}
-                                        onChange={(e) => setReplyText(e.target.value)}
-                                        rows={4}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                                    />
-                                </div>
+                        {/* Content */}
+                        <div className="p-6 space-y-5">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Title</label>
+                                <input
+                                    type="text"
+                                    value={selectedComplaint?.title || ""}
+                                    readOnly
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-700 font-medium"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Details</label>
+                                <textarea
+                                    value={selectedComplaint?.details || ""}
+                                    readOnly
+                                    rows={3}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-700 resize-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Your Reply *</label>
+                                <textarea
+                                    placeholder="Type your resolution message here..."
+                                    value={replyText}
+                                    onChange={(e) => setReplyText(e.target.value)}
+                                    rows={4}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                                />
                             </div>
                         </div>
-                        <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+
+                        {/* Footer */}
+                        <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end gap-3">
+                            <button
+                                onClick={closeDialog}
+                                className="px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-bold hover:bg-gray-100 transition-colors"
+                            >
+                                Cancel
+                            </button>
                             <button
                                 onClick={handleResolve}
                                 disabled={!replyText.trim()}
-                                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed transition-all shadow-lg flex items-center gap-2"
                             >
-                                Resolve
-                            </button>
-                            <button
-                                onClick={closeDialog}
-                                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                            >
-                                Cancel
+                                <Send size={16} />
+                                Resolve Complaint
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
+            {/* Create Complaint Dialog */}
             {openCreateComplaintModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    {/* Background overlay */}
-                    <div
-                        className="fixed inset-0 transition-opacity"
-                        onClick={handleCancelCreateComplaint}
-                    ></div>
-
-                    {/* Dialog content */}
-                    <div className="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-auto">
-                        <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
-                                    <input
-                                        type="text"
-                                        value={studentId}
-                                        onChange={(e) => setStudentId(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
-                                    />
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-5 rounded-t-2xl">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                        <Plus className="text-white" size={20} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white">Submit New Complaint</h3>
+                                        <p className="text-white/80 text-sm">Create a complaint on behalf of a student</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                                    <input
-                                        type="text"
-                                        value={complaintTitle}
-                                        onChange={(e) => setComplaintTitle(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Details</label>
-                                    <textarea
-                                        value={complaintDetails}
-                                        onChange={(e) => setComplaintDetails(e.target.value)}
-                                        rows={3}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 resize-none"
-                                    />
-                                </div>
+                                <button
+                                    onClick={handleCancelCreateComplaint}
+                                    className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
                             </div>
                         </div>
-                        <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button
-                                onClick={() => createComplaint()}
-                                disabled={!complaintTitle.trim() || !complaintDetails.trim()}
-                                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
-                            >
-                                Submit
-                            </button>
+
+                        <div className="p-6 space-y-5">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Student ID *</label>
+                                <input
+                                    type="text"
+                                    value={studentId}
+                                    onChange={(e) => setStudentId(e.target.value)}
+                                    placeholder="e.g. S12345"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Title *</label>
+                                <input
+                                    type="text"
+                                    value={complaintTitle}
+                                    onChange={(e) => setComplaintTitle(e.target.value)}
+                                    placeholder="Brief description of the issue"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Details *</label>
+                                <textarea
+                                    value={complaintDetails}
+                                    onChange={(e) => setComplaintDetails(e.target.value)}
+                                    placeholder="Provide detailed information about the complaint..."
+                                    rows={4}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end gap-3">
                             <button
                                 onClick={handleCancelCreateComplaint}
-                                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm hover:cursor-pointer"
+                                className="px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-bold hover:bg-gray-100 transition-colors"
                             >
                                 Cancel
+                            </button>
+                            <button
+                                onClick={createComplaint}
+                                disabled={!complaintTitle.trim() || !complaintDetails.trim() || !studentId.trim()}
+                                className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed transition-all shadow-lg flex items-center gap-2"
+                            >
+                                <Send size={16} />
+                                Submit Complaint
                             </button>
                         </div>
                     </div>
