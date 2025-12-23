@@ -11,6 +11,8 @@ import HostelManagementPage from './pages/HostelManagementPage'
 import HostelApplicationPage from './pages/HostelApplicationPage'
 import MaintenanceManagementPage from './pages/MaintenanceManagementPage'
 import NotificationManagementPage from './pages/NotificationPage'
+import FeeManagementPage from './pages/FeeManagementPage'
+import ReportsPage from './pages/ReportsPage'
 
 function App() {
     return (
@@ -26,6 +28,8 @@ function App() {
                 <Route path="complaints" element={<ComplaintManagementPage />} />
                 <Route path="maintenances" element={<MaintenanceManagementPage />} />
                 <Route path="notifications" element={<NotificationManagementPage />} />
+                <Route path="payments" element={<FeeManagementPage />} />
+                <Route path="reports" element={<ReportsPage />} />
                 <Route index element={<div>Welcome Dashboard</div>} />
                 <Route path="/home" element={<div>Welcome Dashboard</div>} />
             </Route>

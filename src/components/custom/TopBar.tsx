@@ -83,6 +83,24 @@ export default function TopBar({ userName }: Props) {
                         >
                             NOTIFICATIONS
                         </Link>
+                        <Link
+                            to="/payments"
+                            className={`px-3 py-2 text-sm font-medium ${isActive("/payments")
+                                ? "text-blue-600 border-b-2 border-blue-600"
+                                : "text-gray-900 hover:text-gray-700"
+                                }`}
+                        >
+                            PAYMENTS
+                        </Link>
+                        <Link
+                            to="/reports"
+                            className={`px-3 py-2 text-sm font-medium ${isActive("/reports")
+                                ? "text-blue-600 border-b-2 border-blue-600"
+                                : "text-gray-900 hover:text-gray-700"
+                                }`}
+                        >
+                            REPORTS
+                        </Link>
                     </div>
                     <div className="flex items-center space-x-4">
                         <span className="text-gray-600 text-sm">Hello, <span className="font-medium">{userName || "Admin"}</span></span>
