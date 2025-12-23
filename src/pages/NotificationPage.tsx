@@ -22,6 +22,7 @@ import {
 
 const FETCH_ALL_NOTIFICATIONS_API = "http://localhost:3000/api/notification/all";
 const CREATE_NOTIFICATION_API = "http://localhost:3000/api/notification/create";
+const DELETE_NOTIFICATION_API = "http://localhost:3000/api/notification/";
 
 interface Notification {
     id: number;
@@ -58,6 +59,25 @@ export default function NotificationManagementPage() {
             fetchNotifications();
         } catch (error) {
             console.error('Failed to create notification:', error);
+        }
+    };
+
+    const handleDeleteNotification = async (notificationId: number) => {
+        if (!confirm("Are you sure you want to delete this notification? This action cannot be undone.")) {
+            return;
+        }
+
+        try {
+            const url = DELETE_NOTIFICATION_API + notificationId;
+            const response = await axios.delete(url);
+
+            if (response.status === 200) {
+                setNotifications(prev => prev.filter(n => n.id !== notificationId));
+                alert("Notification deleted successfully!");
+            }
+        } catch (error: any) {
+            console.error("Failed to delete notification", error);
+            alert(error.response?.data?.message || "Failed to delete notification");
         }
     };
 
