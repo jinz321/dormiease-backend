@@ -51,8 +51,20 @@ export default function DashboardPage() {
     })
     const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
     const [loading, setLoading] = useState(true)
+    const [adminName, setAdminName] = useState("Admin")
 
     useEffect(() => {
+        // Get admin name from localStorage
+        const adminStr = localStorage.getItem("admin")
+        if (adminStr) {
+            try {
+                const admin = JSON.parse(adminStr)
+                setAdminName(admin.name || admin.staff_id || "Admin")
+            } catch (error) {
+                console.error("Error parsing admin data:", error)
+            }
+        }
+
         const fetchDashboardData = async () => {
             try {
                 const [hostelsRes, roomsRes, complaintsRes, maintenanceRes] = await Promise.all([
