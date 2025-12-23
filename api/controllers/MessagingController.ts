@@ -1,9 +1,14 @@
 import { Request, Response } from "express";
 import { db } from "../config/firebase";
 import { getIO } from "../config/socket";
+import { parsePaginationParams, createPaginatedResponse } from "../utils/types";
 
 export class MessagingController {
 
+    /**
+     * Start or get existing conversation
+     * @route POST /api/conversations/start
+     */
     static async startConversation(req: Request, res: Response) {
         try {
             // Support both /conversation/start (body) and /user/conversations/:user_id (params + body)
@@ -40,6 +45,10 @@ export class MessagingController {
         }
     }
 
+    /**
+     * Send a message in a conversation
+     * @route POST /api/messages
+     */
     static async sendMessage(req: Request, res: Response) {
         try {
             const { conversation_id, sender_id, sender_user_id, sender_admin_id, text, content } = req.body;
@@ -104,6 +113,10 @@ export class MessagingController {
         }
     }
 
+    /**
+     * Get all conversations for admin view
+     * @route GET /api/admin/conversations
+     */
     static async getAdminConversations(req: Request, res: Response) {
         try {
             // Fetch ALL conversations - shared among all admins
@@ -124,6 +137,10 @@ export class MessagingController {
         }
     }
 
+    /**
+     * Get conversations for a specific user
+     * @route GET /api/user/conversations/:user_id
+     */
     static async getUserConversations(req: Request, res: Response) {
         try {
             const { user_id } = req.params;
@@ -136,38 +153,60 @@ export class MessagingController {
         }
     }
 
+    /**
+     * Get messages for a conversation with optional pagination
+     * @route GET /api/conversations/:conversation_id/messages?limit=50&offset=0
+     * @query limit - Number of messages per page (default: 50, max: 100)
+     * @query offset - Number of messages to skip (default: 0)
+     */
     static async getMessages(req: Request, res: Response) {
         try {
             const { conversation_id } = req.params;
-            const snapshot = await db.collection('messages')
-                .where('conversation_id', '==', conversation_id)
-                .get();
+            const { limit, offset } = parsePaginationParams(req.query);
+            const usePagination = req.query.limit !== undefined || req.query.offset !== undefined;
 
-            // Manual sort to avoid index
-            interface MessageData {
-                id: string;
-                created_at?: string;
-                content?: unknown;
-                sender_admin_id?: unknown;
-                [key: string]: unknown;
+            // Get total count
+            const countSnapshot = await db.collection('messages')
+                .where('conversation_id', '==', conversation_id)
+                .count()
+                .get();
+            const total = countSnapshot.data().count;
+
+            // Fetch with orderBy and pagination
+            let query = db.collection('messages')
+                .where('conversation_id', '==', conversation_id)
+                .orderBy('created_at', 'asc');
+
+            if (usePagination) {
+                query = query.limit(limit).offset(offset);
             }
+
+            const snapshot = await query.get();
             const messages = snapshot.docs.map(doc => {
                 const data = doc.data();
                 return {
                     id: doc.id,
                     ...data,
                     content: data.content || data.text,
-                    sender_admin_id: data.sender_admin_id || (data.sender_id === '1' ? '1' : null) // Assuming '1' is admin for now
-                } as MessageData;
-            }).sort((a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
+                    sender_admin_id: data.sender_admin_id || (data.sender_id === '1' ? '1' : null)
+                };
+            });
 
-            return res.status(200).json(messages);
+            if (usePagination) {
+                return res.status(200).json(createPaginatedResponse(messages, total, limit, offset));
+            } else {
+                return res.status(200).json(messages);
+            }
         } catch (error) {
             console.error("Get messages error:", error);
             return res.status(500).json({ message: "Failed to fetch messages" });
         }
     }
 
+    /**
+     * Mark a message as read
+     * @route PUT /api/messages/:message_id/read
+     */
     static async markAsRead(req: Request, res: Response) {
         try {
             const { message_id } = req.params;

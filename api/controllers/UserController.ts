@@ -4,9 +4,10 @@ import { compare, hash } from "bcrypt-ts";
 
 export class UserController {
 
-  // ======================
-  // User Signup
-  // ======================
+  /**
+   * User signup/registration
+   * @route POST /api/users/signup
+   */
   static async signup(req: Request, res: Response) {
     try {
       console.log('=== Signup request received ===');
@@ -93,9 +94,10 @@ export class UserController {
     }
   }
 
-  // ======================
-  // User Signin
-  // ======================
+  /**
+   * User signin/login
+   * @route POST /api/users/signin
+   */
   static async signin(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
@@ -145,9 +147,10 @@ export class UserController {
     }
   }
 
-  // ======================
-  // Get All Users
-  // ======================
+  /**
+   * Get all users (returns id and name only)
+   * @route GET /api/users
+   */
   static async getAllUsers(req: Request, res: Response) {
     try {
       const snapshot = await db.collection('users').get();
@@ -163,9 +166,10 @@ export class UserController {
     }
   }
 
-  // ======================
-  // Get All Admins
-  // ======================
+  /**
+   * Get all admins (returns id and name only)
+   * @route GET /api/admins
+   */
   static async getAllAdmins(req: Request, res: Response) {
     try {
       const snapshot = await db.collection('admins').get();
@@ -181,9 +185,10 @@ export class UserController {
     }
   }
 
-  // ======================
-  // Update Profile
-  // ======================
+  /**
+   * Update user profile (name, email, password, profile_image)
+   * @route PUT /api/users/profile
+   */
   static async updateProfile(req: Request, res: Response) {
     try {
       const { userId, name, email, password, profile_image } = req.body;

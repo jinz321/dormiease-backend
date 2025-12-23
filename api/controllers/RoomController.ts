@@ -3,6 +3,10 @@ import { db, admin } from "../config/firebase";
 
 export class RoomController {
 
+    /**
+     * Apply for a specific room
+     * @route POST /api/rooms/apply
+     */
     static async applyToRoom(req: Request, res: Response) {
         try {
             const { userId, roomId } = req.body;
@@ -29,6 +33,10 @@ export class RoomController {
         }
     }
 
+    /**
+     * Change user's room assignment
+     * @route PUT /api/rooms/change
+     */
     static async changeRoom(req: Request, res: Response) {
         try {
             const { userId, newRoomId, applicationId } = req.body;
@@ -103,6 +111,10 @@ export class RoomController {
         }
     }
 
+    /**
+     * Update room application status
+     * @route PUT /api/rooms/applications/:id
+     */
     static async updateApplicationStatus(req: Request, res: Response) {
         try {
             const { id } = req.params;
@@ -124,6 +136,10 @@ export class RoomController {
         }
     }
 
+    /**
+     * Get all room applications with user and room details (Admin)
+     * @route GET /api/rooms/applications
+     */
     static async getRoomApplications(req: Request, res: Response) {
         try {
             const snapshot = await db.collection('room_applications').get();
@@ -165,6 +181,10 @@ export class RoomController {
         }
     }
 
+    /**
+     * Create a new room
+     * @route POST /api/rooms
+     */
     static async create(req: Request, res: Response) {
         try {
             const { name, maxSize, hostelId } = req.body;
@@ -203,6 +223,10 @@ export class RoomController {
         }
     }
 
+    /**
+     * Fetch all rooms
+     * @route GET /api/rooms
+     */
     static async fetchAll(req: Request, res: Response) {
         try {
             const snapshot = await db.collection('rooms').get();

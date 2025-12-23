@@ -3,6 +3,10 @@ import { db, admin } from "../config/firebase";
 
 export class HostelController {
 
+    /**
+     * Apply for hostel accommodation
+     * @route POST /api/hostels/apply
+     */
     static async applyHostel(req: Request, res: Response) {
         try {
             const { room_type } = req.body;
@@ -38,6 +42,10 @@ export class HostelController {
         }
     }
 
+    /**
+     * Fetch all hostels
+     * @route GET /api/hostels
+     */
     static async fetchAll(req: Request, res: Response) {
         try {
             const snapshot = await db.collection('hostels').get();
@@ -52,6 +60,10 @@ export class HostelController {
         }
     }
 
+    /**
+     * Fetch all hostel applications with user and hostel details (Admin)
+     * @route GET /api/hostels/applications
+     */
     static async fetchAllApplications(req: Request, res: Response) {
         try {
             const snapshot = await db.collection('hostel_applications').get();
@@ -96,6 +108,10 @@ export class HostelController {
         }
     }
 
+    /**
+     * Update hostel application status (approve/reject)
+     * @route PUT /api/hostels/applications/status
+     */
     static async updateApplicationStatus(req: Request, res: Response) {
         try {
             const id = req.body.id || req.body.applicationId;
@@ -146,6 +162,11 @@ export class HostelController {
             return res.status(500).json({ message: "Failed to update application" });
         }
     }
+
+    /**
+     * Create a new hostel
+     * @route POST /api/hostels
+     */
     static async createHostel(req: Request, res: Response) {
         try {
             const { name, maxSize } = req.body;

@@ -4,9 +4,10 @@ import { compare, hash } from "bcrypt-ts";
 
 export class AdminController {
 
-    // ======================
-    // Admin Signup
-    // ======================
+    /**
+     * Admin signup/registration
+     * @route POST /api/admin/signup
+     */
     static async signup(req: Request, res: Response) {
         try {
             console.log("Admin Signup Request Body:", req.body);
@@ -63,9 +64,10 @@ export class AdminController {
         }
     }
 
-    // ======================
-    // Admin Signin
-    // ======================
+    /**
+     * Admin signin/login
+     * @route POST /api/admin/signin
+     */
     static async signin(req: Request, res: Response) {
         try {
             console.log("Admin Signin Request Body:", req.body);
@@ -109,9 +111,10 @@ export class AdminController {
         }
     }
 
-    // ======================
-    // Debug: List Admins
-    // ======================
+    /**
+     * Debug endpoint to list all admins
+     * @route GET /api/admin/list
+     */
     static async listAdmins(req: Request, res: Response) {
         try {
             const snap = await db.collection('admins').get();

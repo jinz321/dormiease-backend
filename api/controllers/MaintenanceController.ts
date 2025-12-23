@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import { db } from "../config/firebase";
+import { parsePaginationParams, createPaginatedResponse } from "../utils/types";
 
 export class MaintenanceController {
-  // ===============================
-  // SUBMIT MAINTENANCE
-  // ===============================
+  /**
+   * Submit a new maintenance request
+   * @route POST /api/maintenances
+   */
   static async submitMaintenance(req: Request, res: Response) {
     const { studentId, title, details } = req.body;
 
@@ -52,9 +54,10 @@ export class MaintenanceController {
     }
   }
 
-  // ===============================
-  // RESOLVE MAINTENANCE (ADMIN)
-  // ===============================
+  /**
+   * Update/resolve a maintenance request (Admin only)
+   * @route PUT /api/maintenances/:id
+   */
   static async updateMaintenance(req: Request, res: Response) {
     const { id } = req.params;
     const { adminId, reply } = req.body;
@@ -93,22 +96,36 @@ export class MaintenanceController {
     }
   }
 
-  // ===============================
-  // FETCH ALL MAINTENANCES (ADMIN)
-  // ===============================
+  /**
+   * Fetch all maintenance requests with optional pagination (Admin)
+   * @route GET /api/maintenances?limit=50&offset=0
+   * @query limit - Number of items per page (default: 50, max: 100)
+   * @query offset - Number of items to skip (default: 0)
+   */
   static async fetchAll(req: Request, res: Response) {
     try {
-      const snapshot = await db.collection('maintenances')
-        .orderBy('created_at', 'desc')
-        .get();
+      const { limit, offset } = parsePaginationParams(req.query);
+      const usePagination = req.query.limit !== undefined || req.query.offset !== undefined;
+
+      // Get total count
+      const countSnapshot = await db.collection('maintenances').count().get();
+      const total = countSnapshot.data().count;
+
+      // Fetch with pagination
+      let query = db.collection('maintenances').orderBy('created_at', 'desc');
+
+      if (usePagination) {
+        query = query.limit(limit).offset(offset);
+      }
+
+      const snapshot = await query.get();
 
       const maintenances = await Promise.all(snapshot.docs.map(async (doc) => {
         const data = doc.data();
         let studentName = data.studentName;
         let studentId = "Unknown";
 
-        // If denormalized name missing, fetch user. 
-        // Can be optimized by denormalizing fully.
+        // If denormalized name missing, fetch user
         if (!studentName && data.userId) {
           const userSnap = await db.collection('users').doc(data.userId).get();
           if (userSnap.exists) {
@@ -134,7 +151,12 @@ export class MaintenanceController {
         };
       }));
 
-      return res.status(200).json(maintenances);
+      // Return paginated or full response
+      if (usePagination) {
+        return res.status(200).json(createPaginatedResponse(maintenances, total, limit, offset));
+      } else {
+        return res.status(200).json(maintenances);
+      }
     } catch (error) {
       console.error("Fetch Maintenances Error:", error);
       return res.status(500).json({
@@ -143,11 +165,12 @@ export class MaintenanceController {
     }
   }
 
-  // ===============================
-  // FETCH MAINTENANCE BY STUDENT ID
-  // ===============================
+  /**
+   * Fetch maintenance requests by student ID with optional pagination
+   * @route GET /api/maintenances/student/:studentId?limit=50&offset=0
+   */
   static async fetchByStudent(req: Request, res: Response) {
-    const { studentId } = req.params; // Note: params might pass userId (PK) or studentId (string field). Code assumes studentId field.
+    const { studentId } = req.params;
 
     if (!studentId) {
       return res.status(400).json({
@@ -156,8 +179,8 @@ export class MaintenanceController {
     }
 
     try {
-      // Assuming params passes the 'student_id' string (e.g. S12345) based on original code `where: { student_id: String(studentId) }`
-      // Or does it pass the database ID? Original code query `prisma.users.findUnique({ where: { student_id: String(studentId) } })` suggests it's the student ID string.
+      const { limit, offset } = parsePaginationParams(req.query);
+      const usePagination = req.query.limit !== undefined || req.query.offset !== undefined;
 
       const usersSnap = await db.collection('users').where('student_id', '==', String(studentId)).limit(1).get();
 
@@ -169,21 +192,30 @@ export class MaintenanceController {
 
       const userId = usersSnap.docs[0].id;
 
-      const snapshot = await db.collection('maintenances')
+      // Get total count
+      const countSnapshot = await db.collection('maintenances')
         .where('userId', '==', userId)
-        // .orderBy('created_at', 'desc') // Requires index
+        .count()
         .get();
+      const total = countSnapshot.data().count;
 
-      // Manual sort in memory to avoid index error for now
-      interface MaintenanceData {
-        id: string;
-        created_at?: string;
-        [key: string]: unknown;
+      // Fetch with orderBy and pagination
+      let query = db.collection('maintenances')
+        .where('userId', '==', userId)
+        .orderBy('created_at', 'desc');
+
+      if (usePagination) {
+        query = query.limit(limit).offset(offset);
       }
-      const maintenances = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MaintenanceData))
-        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 
-      return res.status(200).json(maintenances);
+      const snapshot = await query.get();
+      const maintenances = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      if (usePagination) {
+        return res.status(200).json(createPaginatedResponse(maintenances, total, limit, offset));
+      } else {
+        return res.status(200).json(maintenances);
+      }
     } catch (error) {
       console.error("Fetch By Student Error:", error);
       return res.status(500).json({
@@ -192,9 +224,10 @@ export class MaintenanceController {
     }
   }
 
-  // ===============================
-  // FETCH MAINTENANCE BY USER ID (DOCUMENT ID)
-  // ===============================
+  /**
+   * Fetch maintenance requests by user document ID with optional pagination
+   * @route GET /api/maintenances/user/:userId?limit=50&offset=0
+   */
   static async fetchByUserId(req: Request, res: Response) {
     const { userId } = req.params;
 
@@ -205,20 +238,33 @@ export class MaintenanceController {
     }
 
     try {
-      const snapshot = await db.collection('maintenances')
-        .where('userId', '==', userId)
-        .get();
+      const { limit, offset } = parsePaginationParams(req.query);
+      const usePagination = req.query.limit !== undefined || req.query.offset !== undefined;
 
-      interface MaintenanceData {
-        id: string;
-        created_at?: string;
-        [key: string]: unknown;
+      // Get total count
+      const countSnapshot = await db.collection('maintenances')
+        .where('userId', '==', userId)
+        .count()
+        .get();
+      const total = countSnapshot.data().count;
+
+      // Fetch with orderBy and pagination
+      let query = db.collection('maintenances')
+        .where('userId', '==', userId)
+        .orderBy('created_at', 'desc');
+
+      if (usePagination) {
+        query = query.limit(limit).offset(offset);
       }
 
-      const maintenances = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MaintenanceData))
-        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      const snapshot = await query.get();
+      const maintenances = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      return res.status(200).json(maintenances);
+      if (usePagination) {
+        return res.status(200).json(createPaginatedResponse(maintenances, total, limit, offset));
+      } else {
+        return res.status(200).json(maintenances);
+      }
     } catch (error) {
       console.error("Fetch By User ID Error:", error);
       return res.status(500).json({

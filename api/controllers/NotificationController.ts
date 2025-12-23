@@ -1,8 +1,13 @@
 import { Request, Response } from "express";
 import { db } from "../config/firebase";
+import { parsePaginationParams, createPaginatedResponse } from "../utils/types";
 
 export default class NotificationController {
 
+  /**
+   * Create a new notification and fan-out to all users
+   * @route POST /api/notifications
+   */
   static async create(req: Request, res: Response): Promise<void> {
     const { title, message } = req.body;
 
@@ -51,6 +56,10 @@ export default class NotificationController {
     }
   }
 
+  /**
+   * Delete a notification
+   * @route DELETE /api/notifications/:id
+   */
   static async delete(req: Request, res: Response): Promise<void> {
     const notifId = req.params.id;
     if (!notifId) {
@@ -77,6 +86,10 @@ export default class NotificationController {
     }
   }
 
+  /**
+   * Get all notifications (Admin)
+   * @route GET /api/admin/notifications
+   */
   static async adminGetAll(req: Request, res: Response): Promise<void> {
     try {
       const snapshot = await db.collection('notifications').orderBy('created_at', 'desc').get();
@@ -89,6 +102,12 @@ export default class NotificationController {
     }
   }
 
+  /**
+   * Get notifications for a specific user with optional pagination
+   * @route GET /api/notifications/user/:userId?limit=50&offset=0
+   * @query limit - Number of items per page (default: 50, max: 100)
+   * @query offset - Number of items to skip (default: 0)
+   */
   static async getForUser(req: Request, res: Response): Promise<void> {
     const userId = req.params.userId;
     if (!userId) {
@@ -97,10 +116,26 @@ export default class NotificationController {
     }
 
     try {
-      const snapshot = await db.collection('user_notifications')
+      const { limit, offset } = parsePaginationParams(req.query);
+      const usePagination = req.query.limit !== undefined || req.query.offset !== undefined;
+
+      // Get total count
+      const countSnapshot = await db.collection('user_notifications')
         .where('user_id', '==', userId)
-        // .orderBy('created_at', 'desc') // Needs index
+        .count()
         .get();
+      const total = countSnapshot.data().count;
+
+      // Fetch with orderBy and pagination
+      let query = db.collection('user_notifications')
+        .where('user_id', '==', userId)
+        .orderBy('created_at', 'desc');
+
+      if (usePagination) {
+        query = query.limit(limit).offset(offset);
+      }
+
+      const snapshot = await query.get();
 
       // Manual join with notification details
       const userNotifs = await Promise.all(snapshot.docs.map(async (doc) => {
@@ -113,23 +148,21 @@ export default class NotificationController {
         };
       }));
 
-      // Sort
-      interface UserNotifData {
-        id: string;
-        created_at?: string;
-        [key: string]: unknown;
+      if (usePagination) {
+        res.status(200).json(createPaginatedResponse(userNotifs, total, limit, offset));
+      } else {
+        res.status(200).json(userNotifs);
       }
-      userNotifs.sort((a: UserNotifData, b: UserNotifData) =>
-        (new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
-      );
-
-      res.status(200).json(userNotifs);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Failed to fetch user notifications" });
     }
   }
 
+  /**
+   * Mark a notification as read
+   * @route PUT /api/notifications/:userNotificationId/read
+   */
   static async markAsRead(req: Request, res: Response): Promise<void> {
     const id = req.params.userNotificationId;
     if (!id) {

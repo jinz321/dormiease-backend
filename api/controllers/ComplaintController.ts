@@ -1,8 +1,13 @@
 import { Request, Response } from "express";
 import { db } from "../config/firebase";
+import { parsePaginationParams, createPaginatedResponse } from "../utils/types";
 
 export class ComplaintController {
 
+    /**
+     * Submit a new complaint
+     * @route POST /api/complaints
+     */
     static async submitComplaint(req: Request, res: Response) {
         try {
             const { userId, title, details } = req.body;
@@ -56,6 +61,10 @@ export class ComplaintController {
         }
     }
 
+    /**
+     * Update a complaint (Admin only)
+     * @route PUT /api/complaints/:id
+     */
     static async updateComplaint(req: Request, res: Response) {
         try {
             const { id } = req.params;
@@ -86,17 +95,46 @@ export class ComplaintController {
         }
     }
 
+    /**
+     * Fetch all complaints with optional pagination (Admin)
+     * @route GET /api/complaints?limit=50&offset=0
+     * @query limit - Number of items per page (default: 50, max: 100)
+     * @query offset - Number of items to skip (default: 0)
+     */
     static async fetchAll(req: Request, res: Response) {
         try {
-            const snapshot = await db.collection('complaints').orderBy('created_at', 'desc').get();
+            const { limit, offset } = parsePaginationParams(req.query);
+            const usePagination = req.query.limit !== undefined || req.query.offset !== undefined;
+
+            // Get total count
+            const countSnapshot = await db.collection('complaints').count().get();
+            const total = countSnapshot.data().count;
+
+            // Fetch with pagination
+            let query = db.collection('complaints').orderBy('created_at', 'desc');
+
+            if (usePagination) {
+                query = query.limit(limit).offset(offset);
+            }
+
+            const snapshot = await query.get();
             const complaints = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            return res.status(200).json(complaints);
+
+            if (usePagination) {
+                return res.status(200).json(createPaginatedResponse(complaints, total, limit, offset));
+            } else {
+                return res.status(200).json(complaints);
+            }
         } catch (error) {
             console.error("Fetch complaints error:", error);
             return res.status(500).json({ message: "Failed to fetch complaints" });
         }
     }
 
+    /**
+     * Fetch complaints by student user ID
+     * @route GET /api/complaints/student/:userId
+     */
     static async fetchByStudent(req: Request, res: Response) {
         try {
             const { userId } = req.params;
