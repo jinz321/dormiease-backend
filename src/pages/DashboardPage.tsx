@@ -237,7 +237,7 @@ export default function DashboardPage() {
                                 <div className="flex items-center gap-3 mb-2">
                                     <span className="text-5xl">{greeting.emoji}</span>
                                     <h1 className="text-4xl font-bold text-white tracking-tight">
-                                        {greeting.text}, Admin!
+                                        {greeting.text}, {adminName}!
                                     </h1>
                                 </div>
                                 <p className="text-white/80 text-lg">Here's your hostel management overview for today.</p>
