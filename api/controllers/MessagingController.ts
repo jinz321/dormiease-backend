@@ -19,11 +19,17 @@ export class MessagingController {
                 return res.status(400).json({ message: "user_id is required" });
             }
 
-            // Check if conversation already exists for this user (shared among all admins)
-            const existing = await db.collection('conversations')
-                .where('user_id', '==', user_id)
-                .limit(1)
-                .get();
+            // Check if conversation already exists for this SPECIFIC admin and user
+            let query = db.collection('conversations').where('user_id', '==', user_id);
+
+            if (admin_id) {
+                query = query.where('admin_id', '==', admin_id);
+            } else {
+                // If no admin_id provided, look for legacy shared conversations (admin_id == null)
+                query = query.where('admin_id', '==', null);
+            }
+
+            const existing = await query.limit(1).get();
 
             if (!existing.empty) {
                 return res.status(200).json({ id: existing.docs[0].id });
