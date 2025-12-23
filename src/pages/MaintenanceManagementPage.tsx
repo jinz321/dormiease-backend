@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { Button } from "@mui/material"
+import { Check, Wrench } from "lucide-react"
 
 type Maintenance = {
   id: number
@@ -162,62 +163,72 @@ export default function MaintenanceManagementPage() {
   // UI
   // ==============================
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-10 px-4">
+    <div className="min-h-screen pt-24 pb-10 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg">
-          <div className="px-6 py-4 border-b flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Maintenance List</h2>
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+          <div className="px-8 py-6 border-b border-gray-100/50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+              <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary flex items-center gap-2">
+                <Wrench className="text-primary" /> Maintenance Requests
+              </h2>
+              <p className="text-gray-500 text-sm mt-1">Manage and track student maintenance reports</p>
+            </div>
             <Button
               type="button"
               variant="contained"
               onClick={() => setOpenCreateMaintenanceModal(true)}
+              className="bg-primary hover:bg-primary/90 shadow-lg rounded-xl px-6"
             >
               Submit New Maintenance
             </Button>
           </div>
 
           <div className="p-6 overflow-x-auto">
-            <table className="min-w-full divide-y">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left">Student Name</th>
-                  <th className="px-6 py-3 text-left">Student ID</th>
-                  <th className="px-6 py-3 text-left">Title</th>
-                  <th className="px-6 py-3 text-left">Details</th>
-                  <th className="px-6 py-3 text-center">Action</th>
-                  <th className="px-6 py-3 text-left">Status</th>
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student Name</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student ID</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Title</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Details</th>
+                  <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-gray-50">
                 {maintenances.map((m) => (
-                  <tr key={m.id}>
-                    <td className="px-6 py-4">{m.studentName || "-"}</td>
-                    <td className="px-6 py-4">{m.studentId || "-"}</td>
-                    <td className="px-6 py-4">{m.title}</td>
-                    <td className="px-6 py-4">{m.details}</td>
+                  <tr key={m.id} className="hover:bg-white/50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-gray-900">{m.studentName || "-"}</td>
+                    <td className="px-6 py-4 text-gray-500 font-mono text-xs">{m.studentId || "-"}</td>
+                    <td className="px-6 py-4 text-gray-800 font-medium">{m.title}</td>
+                    <td className="px-6 py-4 text-gray-600 max-w-xs truncate">{m.details}</td>
                     <td className="px-6 py-4 text-center">
                       {m.status === "open" ? (
                         <button
                           onClick={() => openDialog(m)}
-                          className="bg-blue-500 text-white px-4 py-2 rounded"
+                          className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 mx-auto"
                         >
-                          Reply
+                          <Wrench size={16} /> Reply
                         </button>
                       ) : (
-                        <span className="italic text-gray-400">
-                          Resolved
+                        <span className="flex items-center justify-center text-green-600 font-bold text-sm gap-1">
+                          <Check size={16} /> Resolved
                         </span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${m.status === "open"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-green-100 text-green-700"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-green-100 text-green-700"
                           }`}
                       >
-                        {m.status}
+                        {m.status === "open" ? (
+                          <span className="flex items-center gap-1">⏱️ Open</span>
+                        ) : (
+                          <span className="flex items-center gap-1">✅ Done</span>
+                        )}
                       </span>
                     </td>
                   </tr>

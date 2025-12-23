@@ -14,13 +14,19 @@ import NotificationManagementPage from './pages/NotificationPage'
 import FeeManagementPage from './pages/FeeManagementPage'
 import ReportsPage from './pages/ReportsPage'
 
+import LandingPage from './pages/LandingPage'
+
 function App() {
     return (
         <Routes>
+            {/* Public Landing Page */}
+            <Route path="/" element={<LandingPage />} />
+
             <Route path="/signup" element={<AdminSignUpForm />} />
             <Route path="/login" element={<AdminSignInForm />} />
 
             <Route path="/" element={<AppLayout />}>
+                <Route path="home" element={<div>Welcome Dashboard</div>} />
                 <Route path="hostels" element={<HostelManagementPage />} />
                 <Route path="rooms" element={<RoomManagementPage />} />
                 <Route path="room-applications" element={<RoomApplicationPage />} />
