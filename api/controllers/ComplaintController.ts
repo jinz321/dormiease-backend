@@ -146,4 +146,32 @@ export class ComplaintController {
             return res.status(500).json({ message: "Failed to fetch complaints" });
         }
     }
+
+    /**
+     * Delete a complaint (Admin only)
+     * @route DELETE /api/complaints/:id
+     */
+    static async deleteComplaint(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+
+            if (!id) {
+                return res.status(400).json({ message: "Complaint ID is required" });
+            }
+
+            const ref = db.collection('complaints').doc(id);
+            const doc = await ref.get();
+
+            if (!doc.exists) {
+                return res.status(404).json({ message: "Complaint not found" });
+            }
+
+            await ref.delete();
+
+            return res.status(200).json({ message: "Complaint deleted successfully" });
+        } catch (error) {
+            console.error("Delete complaint error:", error);
+            return res.status(500).json({ message: "Failed to delete complaint" });
+        }
+    }
 }

@@ -19,6 +19,7 @@ router.put('/update-hostel-application', HostelController.updateApplicationStatu
 router.put('/change-room', RoomController.changeRoom as express.RequestHandler);
 router.put('/update-application/:id', RoomController.updateApplicationStatus as express.RequestHandler);
 router.put('/update-complaint/:id', ComplaintController.updateComplaint as express.RequestHandler);
+router.delete('/delete-complaint/:id', ComplaintController.deleteComplaint as express.RequestHandler);
 router.put('/update-maintenance/:id', MaintenanceController.updateMaintenance as express.RequestHandler);
 router.post('/create-notification', NotificationController.create as express.RequestHandler);
 // DEBUG ROUTES

@@ -6,13 +6,12 @@ import {
     ShieldAlert,
     MessageCircle,
     User,
-    Calendar,
     AlertCircle,
     X,
     Send,
     Plus,
-    Clock,
-    CheckCircle2
+    CheckCircle2,
+    Trash2
 } from "lucide-react"
 
 type Complaint = {
@@ -28,6 +27,7 @@ type Complaint = {
 const FETCH_ALL_COMPLAINTS_API = 'http://localhost:3000/api/complaint/all';
 const UPDATE_COMPLAINTS_API = 'http://localhost:3000/api/admin/update-complaint/';
 const SUBMIT_COMPLAINT_API = 'http://localhost:3000/api/admin/submit-complaint';
+const DELETE_COMPLAINT_API = 'http://localhost:3000/api/admin/delete-complaint/';
 
 export default function ComplaintManagementPage() {
     const [complaints, setComplaints] = useState<Complaint[]>([])
@@ -116,6 +116,25 @@ export default function ComplaintManagementPage() {
         } catch (error) {
             console.error(error);
             setLoading(false);
+        }
+    }
+
+    const handleDeleteComplaint = async (complaintId: number) => {
+        if (!confirm("Are you sure you want to delete this complaint? This action cannot be undone.")) {
+            return;
+        }
+
+        try {
+            const url = DELETE_COMPLAINT_API + complaintId;
+            const response = await axios.delete(url);
+
+            if (response.status === 200) {
+                setComplaints(prev => prev.filter(c => c.id !== complaintId));
+                alert("Complaint deleted successfully!");
+            }
+        } catch (error: any) {
+            console.error("Failed to delete complaint", error);
+            alert(error.response?.data?.message || "Failed to delete complaint");
         }
     }
 
@@ -251,16 +270,25 @@ export default function ComplaintManagementPage() {
                                                 )}
                                             </span>
 
-                                            {/* Action Button */}
-                                            {complaint.status === "open" && (
+                                            {/* Action Buttons */}
+                                            <div className="flex flex-col gap-2">
+                                                {complaint.status === "open" && (
+                                                    <button
+                                                        onClick={() => openDialog(complaint)}
+                                                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2"
+                                                    >
+                                                        <MessageCircle size={16} />
+                                                        Reply & Resolve
+                                                    </button>
+                                                )}
                                                 <button
-                                                    onClick={() => openDialog(complaint)}
-                                                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2"
+                                                    onClick={() => handleDeleteComplaint(complaint.id)}
+                                                    className="bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 px-6 py-3 rounded-xl text-sm font-bold transition-all border border-red-200 hover:border-red-300 flex items-center gap-2 justify-center"
                                                 >
-                                                    <MessageCircle size={16} />
-                                                    Reply & Resolve
+                                                    <Trash2 size={16} />
+                                                    Delete
                                                 </button>
-                                            )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
