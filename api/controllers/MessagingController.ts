@@ -172,6 +172,15 @@ export class MessagingController {
                 .get();
             const total = countSnapshot.data().count;
 
+            // If no messages, return empty array
+            if (total === 0) {
+                if (usePagination) {
+                    return res.status(200).json(createPaginatedResponse([], 0, limit, offset));
+                } else {
+                    return res.status(200).json([]);
+                }
+            }
+
             // Fetch with orderBy and pagination
             let query = db.collection('messages')
                 .where('conversation_id', '==', conversation_id)

@@ -248,6 +248,15 @@ export class MaintenanceController {
         .get();
       const total = countSnapshot.data().count;
 
+      // If no maintenances, return empty array
+      if (total === 0) {
+        if (usePagination) {
+          return res.status(200).json(createPaginatedResponse([], 0, limit, offset));
+        } else {
+          return res.status(200).json([]);
+        }
+      }
+
       // Fetch with orderBy and pagination
       let query = db.collection('maintenances')
         .where('userId', '==', userId)

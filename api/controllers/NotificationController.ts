@@ -126,6 +126,16 @@ export default class NotificationController {
         .get();
       const total = countSnapshot.data().count;
 
+      // If no notifications, return empty array
+      if (total === 0) {
+        if (usePagination) {
+          res.status(200).json(createPaginatedResponse([], 0, limit, offset));
+        } else {
+          res.status(200).json([]);
+        }
+        return;
+      }
+
       // Fetch with orderBy and pagination
       let query = db.collection('user_notifications')
         .where('user_id', '==', userId)
