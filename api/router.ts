@@ -8,6 +8,8 @@ import MaintenanceRoutes from './routes/MaintenanceRoutes';
 import HostelRoutes from './routes/HostelRoutes';
 import MessagingRoutes from './routes/MessagingRoutes';
 import NotificationRoutes from './routes/NotificationRoutes';
+import PaymentRoutes from './routes/PaymentRoutes';
+import ReportRoutes from './routes/ReportRoutes';
 
 const router = express.Router();
 
@@ -19,5 +21,7 @@ router.use('/complaint', ComplaintRoutes);
 router.use('/hostels', HostelRoutes);
 router.use('/messaging', MessagingRoutes);
 router.use('/notification', NotificationRoutes);
+router.use('/payment', PaymentRoutes);
+router.use('/report', ReportRoutes);
 
 export default router;
