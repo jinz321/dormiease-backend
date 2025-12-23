@@ -1,3 +1,4 @@
+```typescript
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useState } from "react"
 import {
@@ -13,8 +14,7 @@ import {
     LogOut,
     User,
     Menu,
-    X,
-    ChevronDown
+    X
 } from "lucide-react"
 
 type Props = {
@@ -73,33 +73,20 @@ export default function TopBar({ userName }: Props) {
                                     key={item.path}
                                     to={item.path}
                                     className={`
-                                        group relative px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-300
-                                        flex items-center gap-2
-                                        ${active
-                                            ? "text-white bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/30"
-                                            : "text-gray-600 hover:text-primary hover:bg-primary/5"
-                                        }
-                                    `}
+                                        group relative px - 3 py - 2 rounded - xl text - sm font - semibold transition - all duration - 300
+                                        flex items - center gap - 2
+                                        ${
+    active
+        ? "text-white bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/30"
+        : "text-gray-600 hover:text-primary hover:bg-primary/5"
+}
+`}
                                 >
                                     <Icon
                                         size={16}
-                                        className={`transition-transform duration-300 ${active ? "" : "group-hover:scale-110"}`}
+                                        className={`transition - transform duration - 300 ${ active ? "" : "group-hover:scale-110" } `}
                                     />
                                     <span className="text-xs">{item.label}</span>
-
-                                    {/* Badge for notifications */}
-                                    {item.badge && item.badge > 0 && (
-                                        <span className={`
-                                            absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-bold
-                                            flex items-center justify-center
-                                            ${active
-                                                ? "bg-white text-primary"
-                                                : "bg-red-500 text-white animate-pulse"
-                                            }
-                                        `}>
-                                            {item.badge}
-                                        </span>
-                                    )}
 
                                     {/* Active underline animation */}
                                     {active && (
@@ -161,25 +148,18 @@ export default function TopBar({ userName }: Props) {
                                         to={item.path}
                                         onClick={() => setMobileMenuOpen(false)}
                                         className={`
-                                            flex items-center justify-between px-4 py-3 rounded-xl transition-all
-                                            ${active
-                                                ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg"
-                                                : "text-gray-700 hover:bg-gray-50"
-                                            }
-                                        `}
+                                            flex items - center justify - between px - 4 py - 3 rounded - xl transition - all
+                                            ${
+    active
+        ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg"
+        : "text-gray-700 hover:bg-gray-50"
+}
+`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <Icon size={20} />
                                             <span className="font-semibold">{item.label}</span>
                                         </div>
-                                        {item.badge && item.badge > 0 && (
-                                            <span className={`
-                                                w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center
-                                                ${active ? "bg-white text-primary" : "bg-red-500 text-white"}
-                                            `}>
-                                                {item.badge}
-                                            </span>
-                                        )}
                                     </Link>
                                 )
                             })}
