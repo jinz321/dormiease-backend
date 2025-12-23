@@ -63,6 +63,9 @@
 }
 
 body {
-  background-color: #f7fafc; /* Tailwind's bg-gray-50 */
-  padding: 50px 100px 0px 100px;
+  background: linear-gradient(135deg, #FF6B6B 0%, #9D84B7 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, sans-serif; /* Optional: Ensure modern font */
 }

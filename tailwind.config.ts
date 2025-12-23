@@ -6,7 +6,13 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                primary: "#24a0ed", // Change to your preferred color
+                primary: "#FF6B6B", // Coral Red
+                secondary: "#9D84B7", // Muted Purple
+                accent: "#FF6B35", // Vibrant Orange
+                success: "#22c55e",
+                warning: "#f59e0b",
+                error: "#ef4444",
+                background: "#f4f6f9",
             },
         },
     },

@@ -19,6 +19,7 @@ export default function MessagingWidget() {
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const [adminId, setAdminId] = useState<string | null>(null);
+    const [adminName, setAdminName] = useState<string>("");
 
     useEffect(() => {
         const storedAdmin = localStorage.getItem("admin");
@@ -27,6 +28,7 @@ export default function MessagingWidget() {
             const parsed = JSON.parse(storedAdmin);
             console.log("[MessagingWidget] Admin parsed:", parsed);
             setAdminId(parsed.id);
+            setAdminName(parsed.name || "Admin");
         } else {
             console.warn("[MessagingWidget] No admin found in localStorage!");
         }
@@ -196,7 +198,7 @@ export default function MessagingWidget() {
         <>
             {/* Floating Chat Button */}
             <div
-                className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-xl cursor-pointer hover:bg-blue-700 z-50 transform hover:scale-105 transition-all duration-200 flex items-center justify-center w-14 h-14"
+                className="fixed bottom-6 right-6 bg-primary text-white p-4 rounded-full shadow-xl cursor-pointer hover:bg-primary/90 z-50 transform hover:scale-105 transition-all duration-200 flex items-center justify-center w-14 h-14"
                 onClick={() => setOpen(!open)}
             >
                 <div className="text-2xl">💬</div>
@@ -204,9 +206,9 @@ export default function MessagingWidget() {
 
             {/* Chat Window */}
             {open && (
-                <Card className="fixed bottom-24 right-6 w-96 h-[600px] bg-white shadow-2xl border border-gray-200 flex flex-col z-50 overflow-hidden rounded-xl animate-in fade-in slide-in-from-bottom-10 duration-200">
+                <Card className="fixed bottom-24 right-6 w-96 h-[600px] bg-white/95 backdrop-blur-xl shadow-2xl border border-gray-200 flex flex-col z-50 overflow-hidden rounded-xl animate-in fade-in slide-in-from-bottom-10 duration-200">
                     {/* Header */}
-                    <div className="p-4 bg-blue-600 text-white font-semibold flex justify-between items-center shadow-md shrink-0">
+                    <div className="p-4 bg-primary text-white font-semibold flex justify-between items-center shadow-md shrink-0">
                         {selectedConv ? (
                             // Chat View Header
                             <div className="flex items-center">
@@ -231,11 +233,11 @@ export default function MessagingWidget() {
                         ) : (
                             // Main List Header
                             <div className="flex items-center justify-between w-full">
-                                <span className="text-lg font-bold">{view === 'chats' ? 'Chats' : 'New Message'}</span>
+                                <span className="text-lg font-bold">{view === 'chats' ? (adminName ? `Chats (${adminName})` : 'Chats') : 'New Message'}</span>
                                 {view === 'chats' && (
                                     <button
                                         onClick={() => setView('contacts')}
-                                        className="text-xs bg-white text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-full font-semibold transition-colors shadow-sm"
+                                        className="text-xs bg-white text-primary hover:bg-red-50 px-3 py-1.5 rounded-full font-semibold transition-colors shadow-sm"
                                     >
                                         + New Chat
                                     </button>
@@ -331,7 +333,7 @@ export default function MessagingWidget() {
                                             }
                                         }}
                                     >
-                                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-3">
+                                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs mr-3">
                                             {user.name.charAt(0).toUpperCase()}
                                         </div>
                                         <div>
@@ -345,9 +347,9 @@ export default function MessagingWidget() {
 
                         {/* VIEW 3: Chat Window (Messages) */}
                         {selectedConv && (
-                            <div className="flex-1 flex flex-col h-full bg-[#efeae2]">
+                            <div className="flex-1 flex flex-col h-full bg-gray-50/50">
                                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                                    {messages.map((msg, index) => {
+                                    {messages.map((msg) => {
                                         const isMe = !!msg.sender_admin_id;
                                         return (
                                             <div
@@ -356,7 +358,7 @@ export default function MessagingWidget() {
                                             >
                                                 <div
                                                     className={`max-w-[75%] p-2.5 rounded-lg shadow-sm relative text-sm ${isMe
-                                                        ? "bg-[#d9fdd3] text-gray-800 rounded-tr-none"
+                                                        ? "bg-primary/20 text-gray-800 rounded-tr-none"
                                                         : "bg-white text-gray-800 rounded-tl-none"
                                                         }`}
                                                 >
@@ -394,7 +396,7 @@ export default function MessagingWidget() {
                                         <Button
                                             variant="contained"
                                             onClick={sendMessage}
-                                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full h-10 w-10 min-w-10 p-0 flex items-center justify-center shadow-md"
+                                            className="bg-primary hover:bg-primary/90 text-white rounded-full h-10 w-10 min-w-10 p-0 flex items-center justify-center shadow-md"
                                         >
                                             ➤
                                         </Button>

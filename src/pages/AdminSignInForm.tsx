@@ -42,8 +42,8 @@ export default function AdminSignInForm() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-            <Card className="w-full max-w-lg shadow-xl border border-gray-200 rounded-2xl">
+        <div className="min-h-screen flex items-center justify-center px-4">
+            <Card className="w-full max-w-lg shadow-2xl bg-white/90 backdrop-blur-md border border-white/20 rounded-2xl">
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl font-semibold">Admin Sign In</CardTitle>
                 </CardHeader>
@@ -88,7 +88,7 @@ export default function AdminSignInForm() {
                             Don't have an account?{" "}
                             <Link
                                 to="/signup"
-                                className="text-blue-600 hover:underline font-medium"
+                                className="text-primary hover:underline font-medium"
                             >
                                 Sign up here
                             </Link>
