@@ -29,13 +29,14 @@ export class MessagingController {
                 return res.status(200).json({ id: existing.docs[0].id });
             }
 
-            // Create new conversation without tying to specific admin
+            // Create new conversation tied to this admin (if provided)
             const ref = db.collection('conversations').doc();
             await ref.set({
                 id: ref.id,
                 user_id,
-                admin_id: null,  // Shared conversation, not tied to specific admin
-                created_at: new Date().toISOString()
+                admin_id: admin_id || null,  // Assign admin if provided
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
             });
 
             return res.status(201).json({ id: ref.id });
