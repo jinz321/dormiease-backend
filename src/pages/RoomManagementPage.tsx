@@ -24,6 +24,7 @@ import {
   Select,
 } from "@mui/material"
 import type { SelectChangeEvent } from "@mui/material"
+import { Bed, Plus, Hash, Building2, Users } from "lucide-react"
 
 import type { Hostel, Room } from "@/lib/types"
 
@@ -126,38 +127,46 @@ export default function RoomManagementPage() {
   })
 
   return (
-    <div className="py-10 px-4">
-      <div className="w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="pt-24 pb-10 px-4 min-h-screen">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         {/* ================= ROOM TABLE ================= */}
-        <Card className="md:col-span-2 shadow-lg bg-white border-gray-400">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold">
-              Room List
+        <Card className="lg:col-span-2 shadow-xl bg-white/80 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5 border-b border-gray-100/50 p-6">
+            <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary flex items-center gap-2">
+              <Bed className="text-primary" /> Room Management
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Max Size</TableHead>
-                  <TableHead>Hostel Name</TableHead>
-                  <TableHead>Current Users</TableHead>
+                <TableRow className="bg-gray-50/50 border-b border-gray-100">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Room Name</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Max Size</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Hostel</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-center">Occupancy</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rooms.map((room) => (
-                  <TableRow key={room.id}>
-                    <TableCell>{room.name}</TableCell>
-                    <TableCell>{room.maxSize}</TableCell>
-                    <TableCell>
+                  <TableRow key={room.id} className="hover:bg-white/40 transition-colors border-b border-gray-50">
+                    <TableCell className="px-6 py-4 font-medium text-gray-900">{room.name}</TableCell>
+                    <TableCell className="px-6 py-4 text-gray-600">
+                      <span className="flex items-center gap-1"><Hash size={14} /> {room.maxSize} Beds</span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-gray-600">
                       {room.hostelId !== null
-                        ? hostelMap[room.hostelId] ?? "—"
+                        ? <span className="flex items-center gap-1"><Building2 size={14} /> {hostelMap[room.hostelId] ?? "—"}</span>
                         : "—"}
                     </TableCell>
-                    <TableCell>
-                      {room.currentUsers}
+                    <TableCell className="px-6 py-4 text-center">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${room.currentUsers >= (room.maxSize || 0)
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-green-100 text-green-800'
+                        }`}>
+                        <Users size={12} className="mr-1" />
+                        {room.currentUsers} / {room.maxSize}
+                      </span>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -167,10 +176,10 @@ export default function RoomManagementPage() {
         </Card>
 
         {/* ================= ADD ROOM FORM ================= */}
-        <Card className="shadow-lg bg-white border-gray-400 h-fit">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold">
-              Add New Room
+        <Card className="shadow-2xl bg-white/90 backdrop-blur-xl border border-white/20 h-fit rounded-2xl">
+          <CardHeader className="bg-primary/5 border-b border-gray-100 p-6">
+            <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <Plus className="text-primary" /> Add New Room
             </CardTitle>
           </CardHeader>
 
@@ -239,7 +248,7 @@ export default function RoomManagementPage() {
             <Button
               type="button"
               variant="contained"
-              className="w-full"
+              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 shadow-lg rounded-xl"
               onClick={handleAddRoom}
             >
               Add Room

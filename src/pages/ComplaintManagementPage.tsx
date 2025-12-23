@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import axios from 'axios';
 import { Button } from "@mui/material";
+import { Check, ShieldAlert, MessageCircle } from "lucide-react";
 
 
 type Complaint = {
@@ -148,52 +149,67 @@ export default function ComplaintManagementPage() {
             {/* Main Content */}
             <div className="pt-20 pb-10 px-4">
                 <div className="max-w-6xl mx-auto">
-                    <div className="bg-white rounded-lg shadow-lg">
-                        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                            <h2 className="text-xl font-semibold text-gray-900">Complaint List</h2>
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                        <div className="px-8 py-6 border-b border-gray-100/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div>
+                                <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary flex items-center gap-2">
+                                    <ShieldAlert className="text-primary" /> Complaint List
+                                </h2>
+                                <p className="text-gray-500 text-sm mt-1">Review and resolve maintenance & grievance reports</p>
+                            </div>
 
-                            <Button className="cursor-pointer " variant="contained" onClick={handleClickCreateComplaint}>
+                            <Button
+                                className="bg-primary hover:bg-primary/90 shadow-lg rounded-xl px-6"
+                                variant="contained"
+                                onClick={handleClickCreateComplaint}
+                            >
                                 Submit New Complaint
                             </Button>
                         </div>
                         <div className="p-6">
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student ID</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
-                                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <table className="min-w-full">
+                                    <thead>
+                                        <tr className="border-b border-gray-100">
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student Name</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student ID</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Title</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Details</th>
+                                            <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
+                                    <tbody className="divide-y divide-gray-50">
                                         {complaints.map((complaint) => (
-                                            <tr key={complaint.id} className="hover:bg-gray-50">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{complaint.studentName || "-"}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{complaint.studentId || "-"}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{complaint.title}</td>
-                                                <td className="px-6 py-4 text-sm text-gray-900">{complaint.details}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                            <tr key={complaint.id} className="hover:bg-white/50 transition-colors">
+                                                <td className="px-6 py-4 font-medium text-gray-900">{complaint.studentName || "-"}</td>
+                                                <td className="px-6 py-4 text-gray-500 font-mono text-xs">{complaint.studentId || "-"}</td>
+                                                <td className="px-6 py-4 text-gray-800 font-medium">{complaint.title}</td>
+                                                <td className="px-6 py-4 text-gray-600 max-w-xs truncate">{complaint.details}</td>
+                                                <td className="px-6 py-4 text-center">
                                                     {complaint.status === "open" ? (
                                                         <button
                                                             onClick={() => openDialog(complaint)}
-                                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium border border-blue-500"
+                                                            className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 mx-auto"
                                                         >
-                                                            Reply
+                                                            <MessageCircle size={16} /> Reply
                                                         </button>
                                                     ) : (
-                                                        <span className="text-gray-400 italic text-sm">Resolved</span>
+                                                        <span className="flex items-center justify-center text-green-600 font-bold text-sm gap-1">
+                                                            <Check size={16} /> Resolved
+                                                        </span>
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className={`capitalize px-3 py-1 rounded-full text-xs font-semibold ${complaint.status === "open"
+                                                    <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold w-fit ${complaint.status === "open"
                                                         ? "bg-red-100 text-red-700"
                                                         : "bg-green-100 text-green-700"
                                                         }`}>
-                                                        {complaint.status}
+                                                        {complaint.status === "open" ? (
+                                                            <>⚠️ Open</>
+                                                        ) : (
+                                                            <>✅ Done</>
+                                                        )}
                                                     </span>
                                                 </td>
                                             </tr>

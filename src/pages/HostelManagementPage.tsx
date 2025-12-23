@@ -17,6 +17,7 @@ import {
     TableHead,
     TableCell,
 } from "@/components/ui/table"
+import { Building2, Plus, Home } from "lucide-react"
 import type { Hostel } from "@/lib/types";
 
 const FETCH_ALL_HOSTELS_API = 'http://localhost:3000/api/hostels/all';
@@ -59,24 +60,31 @@ export default function HostelManagementPage() {
     }, []);
 
     return (
-        <div className="py-10 px-4">
-            <div className="w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="pt-24 pb-10 px-4 min-h-screen">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Table Section */}
-                <Card className="md:col-span-2 shadow-lg bg-white border-gray-400">
-                    <CardHeader>
-                        <CardTitle className="text-xl font-semibold">Hostel List</CardTitle>
+                <Card className="lg:col-span-2 shadow-xl bg-white/80 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
+                    <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5 border-b border-gray-100/50 p-6">
+                        <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary flex items-center gap-2">
+                            <Building2 className="text-primary" /> Hostel List
+                        </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         <Table>
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
+                                <TableRow className="bg-gray-50/50 border-b border-gray-100">
+                                    <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Hostel Name</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {hostels.map((hostel) => (
-                                    <TableRow key={hostel.id} className="text-left">
-                                        <TableCell>{hostel.name}</TableCell>
+                                    <TableRow key={hostel.id} className="hover:bg-white/40 transition-colors border-b border-gray-50">
+                                        <TableCell className="px-6 py-4 font-medium text-gray-900 flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                                <Home size={16} />
+                                            </div>
+                                            {hostel.name}
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -85,9 +93,11 @@ export default function HostelManagementPage() {
                 </Card>
 
                 {/* Form Section */}
-                <Card className="shadow-lg h-fit bg-white border-gray-400">
-                    <CardHeader>
-                        <CardTitle className="text-xl font-semibold">Add New Hostel</CardTitle>
+                <Card className="shadow-2xl bg-white/90 backdrop-blur-xl border border-white/20 h-fit rounded-2xl">
+                    <CardHeader className="bg-primary/5 border-b border-gray-100 p-6">
+                        <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <Plus className="text-primary" /> Add New Hostel
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
@@ -100,7 +110,11 @@ export default function HostelManagementPage() {
                             />
                         </div>
 
-                        <Button variant="contained" onClick={handleAddHostel} className="w-full">
+                        <Button
+                            variant="contained"
+                            onClick={handleAddHostel}
+                            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 shadow-lg rounded-xl"
+                        >
                             Add Hostel
                         </Button>
                     </CardContent>
