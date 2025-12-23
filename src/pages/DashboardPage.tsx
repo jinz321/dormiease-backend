@@ -119,7 +119,17 @@ export default function DashboardPage() {
             }
         }
 
+        const fetchRecentActivities = async () => {
+            try {
+                const response = await axios.get("http://localhost:3000/api/admin/recent-activities")
+                setRecentActivity(response.data.slice(0, 10))
+            } catch (error) {
+                console.error("Error fetching recent activities:", error)
+            }
+        }
+
         fetchDashboardData()
+        fetchRecentActivities()
     }, [])
 
     const occupancyRate = stats.totalCapacity > 0

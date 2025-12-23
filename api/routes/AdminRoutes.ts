@@ -6,6 +6,7 @@ import { HostelController } from '../controllers/HostelController';
 import { MaintenanceController } from '../controllers/MaintenanceController';
 import NotificationController from '../controllers/NotificationController';
 import { UserController } from '../controllers/UserController';
+import { ActivityController } from '../controllers/ActivityController';
 
 const router = express.Router();
 
@@ -22,6 +23,7 @@ router.put('/update-complaint/:id', ComplaintController.updateComplaint as expre
 router.delete('/delete-complaint/:id', ComplaintController.deleteComplaint as express.RequestHandler);
 router.put('/update-maintenance/:id', MaintenanceController.updateMaintenance as express.RequestHandler);
 router.post('/create-notification', NotificationController.create as express.RequestHandler);
+router.get('/recent-activities', ActivityController.getRecentActivities as express.RequestHandler);
 // DEBUG ROUTES
 router.get('/debug/admins', AdminController.listAdmins as express.RequestHandler);
 
