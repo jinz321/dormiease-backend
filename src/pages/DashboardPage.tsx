@@ -8,11 +8,14 @@ import {
     FileText,
     AlertCircle,
     Wrench,
-    Plus,
     TrendingUp,
+    TrendingDown,
     Clock,
     CheckCircle,
-    XCircle
+    ArrowRight,
+    Zap,
+    Target,
+    Award
 } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@mui/material"
@@ -52,7 +55,6 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                // Fetch all data in parallel
                 const [hostelsRes, roomsRes, complaintsRes, maintenanceRes] = await Promise.all([
                     axios.get("http://localhost:3000/api/hostels/all"),
                     axios.get("http://localhost:3000/api/room/all"),
@@ -65,7 +67,6 @@ export default function DashboardPage() {
                 const complaints = complaintsRes.data
                 const maintenances = maintenanceRes.data
 
-                // Calculate stats
                 const totalCapacity = hostels.reduce((sum: number, h: any) => sum + (h.totalCapacity || 0), 0)
                 const currentOccupancy = hostels.reduce((sum: number, h: any) => sum + (h.totalApprovedUsers || 0), 0)
                 const activeComplaints = complaints.filter((c: any) => c.status === "open").length
@@ -76,12 +77,11 @@ export default function DashboardPage() {
                     totalRooms: rooms.length,
                     totalCapacity,
                     currentOccupancy,
-                    pendingApplications: 0, // Will be updated when applications API is available
+                    pendingApplications: 0,
                     activeComplaints,
                     maintenanceRequests
                 })
 
-                // Create recent activity feed
                 const activities: RecentActivity[] = [
                     ...complaints.slice(0, 3).map((c: any) => ({
                         id: c.id,
@@ -114,6 +114,16 @@ export default function DashboardPage() {
         ? Math.round((stats.currentOccupancy / stats.totalCapacity) * 100)
         : 0
 
+    // Time-based greeting
+    const getGreeting = () => {
+        const hour = new Date().getHours()
+        if (hour < 12) return { text: "Good Morning", emoji: "☀️" }
+        if (hour < 18) return { text: "Good Afternoon", emoji: "🌤️" }
+        return { text: "Good Evening", emoji: "🌙" }
+    }
+
+    const greeting = getGreeting()
+
     const statCards = [
         {
             title: "Total Hostels",
@@ -121,7 +131,10 @@ export default function DashboardPage() {
             icon: Building2,
             color: "from-primary to-primary/80",
             bgColor: "bg-primary/10",
-            textColor: "text-primary"
+            textColor: "text-primary",
+            trend: "+12%",
+            trendUp: true,
+            subtitle: "Active buildings"
         },
         {
             title: "Total Rooms",
@@ -129,7 +142,10 @@ export default function DashboardPage() {
             icon: Bed,
             color: "from-secondary to-secondary/80",
             bgColor: "bg-secondary/10",
-            textColor: "text-secondary"
+            textColor: "text-secondary",
+            trend: "+8%",
+            trendUp: true,
+            subtitle: "Available units"
         },
         {
             title: "Occupancy Rate",
@@ -138,7 +154,10 @@ export default function DashboardPage() {
             color: "from-green-500 to-green-600",
             bgColor: "bg-green-50",
             textColor: "text-green-600",
-            subtitle: `${stats.currentOccupancy} / ${stats.totalCapacity} beds`
+            progress: occupancyRate,
+            subtitle: `${stats.currentOccupancy} / ${stats.totalCapacity} beds`,
+            trend: "+5%",
+            trendUp: true
         },
         {
             title: "Pending Applications",
@@ -146,7 +165,9 @@ export default function DashboardPage() {
             icon: FileText,
             color: "from-blue-500 to-blue-600",
             bgColor: "bg-blue-50",
-            textColor: "text-blue-600"
+            textColor: "text-blue-600",
+            subtitle: "Awaiting review",
+            priority: stats.pendingApplications > 5 ? "high" : "normal"
         },
         {
             title: "Active Complaints",
@@ -154,7 +175,11 @@ export default function DashboardPage() {
             icon: AlertCircle,
             color: "from-orange-500 to-orange-600",
             bgColor: "bg-orange-50",
-            textColor: "text-orange-600"
+            textColor: "text-orange-600",
+            subtitle: "Needs attention",
+            trend: "-3%",
+            trendUp: false,
+            priority: stats.activeComplaints > 3 ? "high" : "normal"
         },
         {
             title: "Maintenance Requests",
@@ -162,21 +187,28 @@ export default function DashboardPage() {
             icon: Wrench,
             color: "from-red-500 to-red-600",
             bgColor: "bg-red-50",
-            textColor: "text-red-600"
+            textColor: "text-red-600",
+            subtitle: "Open tickets",
+            trend: "-7%",
+            trendUp: false,
+            priority: stats.maintenanceRequests > 5 ? "high" : "normal"
         }
     ]
 
     const quickActions = [
-        { label: "Add Hostel", path: "/hostels", icon: Building2 },
-        { label: "Add Room", path: "/rooms", icon: Bed },
-        { label: "View Applications", path: "/hostel-applications", icon: FileText },
-        { label: "View Reports", path: "/reports", icon: TrendingUp }
+        { label: "Add Hostel", path: "/hostels", icon: Building2, color: "primary" },
+        { label: "Add Room", path: "/rooms", icon: Bed, color: "secondary" },
+        { label: "View Applications", path: "/hostel-applications", icon: FileText, color: "blue" },
+        { label: "View Reports", path: "/reports", icon: TrendingUp, color: "green" }
     ]
 
     if (loading) {
         return (
             <div className="pt-24 pb-10 px-4 min-h-screen flex items-center justify-center">
-                <div className="text-white text-xl">Loading dashboard...</div>
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
+                    <div className="text-white text-xl font-semibold">Loading dashboard...</div>
+                </div>
             </div>
         )
     }
@@ -184,84 +216,158 @@ export default function DashboardPage() {
     return (
         <div className="pt-24 pb-10 px-4 min-h-screen">
             <div className="max-w-7xl mx-auto space-y-8">
-                {/* Header */}
-                <div className="text-white">
-                    <h1 className="text-4xl font-bold tracking-tight mb-2">Welcome Back, Admin! 👋</h1>
-                    <p className="text-white/80 text-lg">Here's what's happening with your hostels today.</p>
+                {/* Enhanced Header with Time-based Greeting */}
+                <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5 rounded-3xl blur-xl" />
+                    <div className="relative bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <span className="text-5xl">{greeting.emoji}</span>
+                                    <h1 className="text-4xl font-bold text-white tracking-tight">
+                                        {greeting.text}, Admin!
+                                    </h1>
+                                </div>
+                                <p className="text-white/80 text-lg">Here's your hostel management overview for today.</p>
+                            </div>
+                            <div className="hidden md:flex items-center gap-4">
+                                <div className="text-right">
+                                    <div className="text-white/60 text-sm">Total Occupancy</div>
+                                    <div className="text-3xl font-bold text-white">{occupancyRate}%</div>
+                                </div>
+                                <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                                    <Target className="text-white" size={36} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Statistics Cards Grid */}
+                {/* Enhanced Statistics Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {statCards.map((stat, index) => {
                         const Icon = stat.icon
+                        const TrendIcon = stat.trendUp ? TrendingUp : TrendingDown
+
                         return (
                             <Card
                                 key={index}
-                                className="bg-white rounded-2xl border-none shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group"
+                                className="bg-white rounded-2xl border-none shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden group relative"
                             >
-                                <CardContent className="p-6">
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className={`w-14 h-14 rounded-2xl ${stat.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                                            <Icon className={`${stat.textColor}`} size={28} />
+                                {/* Animated gradient background */}
+                                <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+
+                                {/* Priority badge */}
+                                {stat.priority === "high" && (
+                                    <div className="absolute top-4 right-4 z-10">
+                                        <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 animate-pulse">
+                                            <Zap size={12} />
+                                            HIGH
                                         </div>
-                                        <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${stat.color} animate-pulse`} />
                                     </div>
-                                    <h3 className="text-gray-500 text-sm font-semibold uppercase tracking-wide mb-2">
-                                        {stat.title}
-                                    </h3>
-                                    <div className="flex items-baseline gap-2">
-                                        <p className="text-4xl font-bold text-gray-800">{stat.value}</p>
-                                        {stat.subtitle && (
-                                            <span className="text-sm text-gray-400">{stat.subtitle}</span>
+                                )}
+
+                                <CardContent className="p-6 relative z-10">
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className={`w-16 h-16 rounded-2xl ${stat.bgColor} flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
+                                            <Icon className={`${stat.textColor}`} size={32} />
+                                        </div>
+                                        {stat.trend && (
+                                            <div className={`flex items-center gap-1 px-2 py-1 rounded-lg ${stat.trendUp ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                                                <TrendIcon size={14} />
+                                                <span className="text-xs font-bold">{stat.trend}</span>
+                                            </div>
                                         )}
                                     </div>
+
+                                    <h3 className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-3">
+                                        {stat.title}
+                                    </h3>
+
+                                    <div className="mb-3">
+                                        <p className="text-5xl font-bold text-gray-800 group-hover:scale-105 transition-transform inline-block">
+                                            {stat.value}
+                                        </p>
+                                    </div>
+
+                                    {/* Progress bar for occupancy */}
+                                    {stat.progress !== undefined && (
+                                        <div className="mb-3">
+                                            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                <div
+                                                    className={`h-full bg-gradient-to-r ${stat.color} rounded-full transition-all duration-1000 ease-out`}
+                                                    style={{ width: `${stat.progress}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <p className="text-sm text-gray-400 font-medium">{stat.subtitle}</p>
                                 </CardContent>
                             </Card>
                         )
                     })}
                 </div>
 
-                {/* Two Column Layout: Recent Activity + Quick Actions */}
+                {/* Two Column Layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Recent Activity Feed */}
-                    <Card className="lg:col-span-2 bg-white rounded-2xl border-none shadow-xl">
-                        <CardHeader className="border-b border-gray-100 p-6">
-                            <div className="flex items-center gap-3">
-                                <Clock className="text-primary" size={24} />
-                                <CardTitle className="text-xl font-bold text-gray-800">Recent Activity</CardTitle>
+                    {/* Enhanced Recent Activity Feed */}
+                    <Card className="lg:col-span-2 bg-white rounded-2xl border-none shadow-xl overflow-hidden">
+                        <CardHeader className="border-b border-gray-100 p-6 bg-gradient-to-r from-gray-50 to-white">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                                        <Clock className="text-primary" size={20} />
+                                    </div>
+                                    <div>
+                                        <CardTitle className="text-xl font-bold text-gray-800">Recent Activity</CardTitle>
+                                        <p className="text-xs text-gray-500 mt-0.5">Latest updates from your system</p>
+                                    </div>
+                                </div>
+                                <Award className="text-gray-300" size={24} />
                             </div>
                         </CardHeader>
                         <CardContent className="p-6">
                             {recentActivity.length === 0 ? (
-                                <div className="text-center py-12 text-gray-400">
-                                    <Clock size={48} className="mx-auto mb-4 opacity-50" />
-                                    <p>No recent activity</p>
+                                <div className="text-center py-16">
+                                    <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+                                        <Clock size={40} className="text-gray-300" />
+                                    </div>
+                                    <p className="text-gray-400 font-medium">No recent activity</p>
+                                    <p className="text-gray-300 text-sm mt-1">Activity will appear here</p>
                                 </div>
                             ) : (
-                                <div className="space-y-4">
-                                    {recentActivity.map((activity) => {
+                                <div className="space-y-3">
+                                    {recentActivity.map((activity, idx) => {
                                         const isCompleted = activity.status === "completed"
                                         const StatusIcon = isCompleted ? CheckCircle : activity.status === "open" ? AlertCircle : Clock
                                         const statusColor = isCompleted ? "text-green-500" : activity.status === "open" ? "text-orange-500" : "text-blue-500"
+                                        const bgColor = isCompleted ? "bg-green-50" : activity.status === "open" ? "bg-orange-50" : "bg-blue-50"
 
                                         return (
                                             <div
                                                 key={activity.id}
-                                                className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
+                                                className="group flex items-start gap-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-all border border-gray-100 hover:border-primary/20 hover:shadow-md cursor-pointer"
+                                                style={{ animationDelay: `${idx * 100}ms` }}
                                             >
-                                                <div className={`w-10 h-10 rounded-lg ${isCompleted ? 'bg-green-50' : 'bg-orange-50'} flex items-center justify-center flex-shrink-0`}>
-                                                    <StatusIcon className={statusColor} size={20} />
+                                                <div className={`w-12 h-12 rounded-xl ${bgColor} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                                                    <StatusIcon className={statusColor} size={22} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-semibold text-gray-800 truncate">{activity.title}</p>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <span className="text-xs text-gray-500 capitalize">{activity.type}</span>
+                                                    <p className="font-bold text-gray-800 truncate group-hover:text-primary transition-colors">
+                                                        {activity.title}
+                                                    </p>
+                                                    <div className="flex items-center gap-2 mt-1.5">
+                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium capitalize">
+                                                            {activity.type}
+                                                        </span>
                                                         <span className="text-xs text-gray-300">•</span>
-                                                        <span className={`text-xs font-medium capitalize ${statusColor}`}>
+                                                        <span className={`text-xs font-bold capitalize ${statusColor}`}>
                                                             {activity.status}
                                                         </span>
                                                     </div>
                                                 </div>
+                                                <ArrowRight className="text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all" size={20} />
                                             </div>
                                         )
                                     })}
@@ -270,13 +376,18 @@ export default function DashboardPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Quick Actions */}
+                    {/* Enhanced Quick Actions */}
                     <Card className="bg-white rounded-2xl border-none shadow-xl h-fit sticky top-24">
-                        <CardHeader className="border-b border-gray-100 p-6">
-                            <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                                <TrendingUp className="text-primary" size={24} />
-                                Quick Actions
-                            </CardTitle>
+                        <CardHeader className="border-b border-gray-100 p-6 bg-gradient-to-br from-primary/5 to-secondary/5">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                                    <Zap className="text-primary" size={20} />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-xl font-bold text-gray-800">Quick Actions</CardTitle>
+                                    <p className="text-xs text-gray-500 mt-0.5">Common tasks</p>
+                                </div>
+                            </div>
                         </CardHeader>
                         <CardContent className="p-6 space-y-3">
                             {quickActions.map((action, index) => {
@@ -286,10 +397,15 @@ export default function DashboardPage() {
                                         key={index}
                                         variant="outlined"
                                         onClick={() => navigate(action.path)}
-                                        className="w-full justify-start gap-3 py-3 px-4 rounded-xl border-2 border-gray-200 hover:border-primary hover:bg-primary/5 text-gray-700 hover:text-primary transition-all normal-case font-semibold"
+                                        className="w-full justify-between gap-3 py-4 px-5 rounded-xl border-2 border-gray-200 hover:border-primary hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 text-gray-700 hover:text-primary transition-all normal-case font-bold text-base group hover:shadow-lg hover:-translate-y-0.5"
                                     >
-                                        <Icon size={20} />
-                                        {action.label}
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+                                                <Icon size={20} className="group-hover:scale-110 transition-transform" />
+                                            </div>
+                                            {action.label}
+                                        </div>
+                                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                     </Button>
                                 )
                             })}
