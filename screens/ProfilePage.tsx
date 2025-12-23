@@ -68,11 +68,16 @@ export default function ProfilePage({ navigation }: any) {
 
             if (image) {
                 payload.profile_image = image;
+                console.log('Profile: Sending photo, length:', image.length);
+            } else {
+                console.log('Profile: No photo selected');
             }
 
+            console.log('Profile: Updating with payload keys:', Object.keys(payload));
             const res = await axios.post(`${API_BASE_URL}/user/update-profile`, payload);
 
             const updatedUser = res.data.user;
+            console.log('Profile: Response user has photo?', !!updatedUser.profile_image);
             await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
             setUser(updatedUser);
             setPassword('');
@@ -80,7 +85,7 @@ export default function ProfilePage({ navigation }: any) {
             Alert.alert('Success', 'Profile updated successfully');
 
         } catch (error: any) {
-            console.error(error);
+            console.error('Profile: Update error:', error);
             Alert.alert('Error', error.response?.data?.message || 'Failed to update profile');
         } finally {
             setLoading(false);

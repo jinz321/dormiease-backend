@@ -19,6 +19,8 @@ import MaintenanceDetailsPage from './screens/MaintenanceDetailPage';
 import MessagingPage from './screens/MessagingPage';
 import NotificationPage from './screens/NotificationPage';
 import ProfilePage from './screens/ProfilePage';
+import PaymentPage from './screens/PaymentPage';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Standard stack/drawer setup
 const Stack = createNativeStackNavigator();
@@ -164,6 +166,14 @@ function CustomDrawerContent(props: any) {
                         theme={theme}
                         style={isActive('Notifications') ? styles.activeItem : styles.item}
                     />
+                    <PaperDrawer.Item
+                        icon="cash"
+                        label="Payments"
+                        active={isActive('Payments')}
+                        onPress={() => props.navigation.navigate('Payments')}
+                        theme={theme}
+                        style={isActive('Payments') ? styles.activeItem : styles.item}
+                    />
                 </PaperDrawer.Section>
             </DrawerContentScrollView>
 
@@ -198,55 +208,58 @@ function DrawerRoutes() {
             <Drawer.Screen name="Complaints" component={ComplaintListPage} />
             <Drawer.Screen name="Messages" component={MessagingPage} />
             <Drawer.Screen name="Notifications" component={NotificationPage} />
+            <Drawer.Screen name="Payments" component={PaymentPage} />
         </Drawer.Navigator>
     );
 }
 
 export default function App() {
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-            <PaperProvider theme={theme}>
-                <NavigationContainer>
-                    <Stack.Navigator>
-                        <Stack.Screen
-                            name="Login"
-                            component={LoginPage}
-                            options={{ headerShown: false }}
-                        />
-                        <Stack.Screen
-                            name="Signup"
-                            component={SignupPage}
-                            options={{ headerShown: false }}
-                        />
-                        <Stack.Screen
-                            name="Main"
-                            component={DrawerRoutes}
-                            options={{ headerShown: false }}
-                        />
-                        <Stack.Screen
-                            name="ComplaintDetails"
-                            component={ComplaintDetailsPage}
-                            options={{ title: "Complaint Details" }}
-                        />
-                        <Stack.Screen
-                            name="MaintenanceDetails"
-                            component={MaintenanceDetailsPage}
-                            options={{ title: "Maintenance Details" }}
-                        />
-                        <Stack.Screen
-                            name="AddNewComplaint"
-                            component={NewComplaintPage}
-                            options={{ title: "Complaints" }}
-                        />
-                        <Stack.Screen
-                            name="AddNewMaintenance"
-                            component={NewMaintenancePage}
-                            options={{ title: "Maintenance" }}
-                        />
-                    </Stack.Navigator>
-                </NavigationContainer>
-            </PaperProvider>
-        </GestureHandlerRootView>
+        <ErrorBoundary>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+                <PaperProvider theme={theme}>
+                    <NavigationContainer>
+                        <Stack.Navigator>
+                            <Stack.Screen
+                                name="Login"
+                                component={LoginPage}
+                                options={{ headerShown: false }}
+                            />
+                            <Stack.Screen
+                                name="Signup"
+                                component={SignupPage}
+                                options={{ headerShown: false }}
+                            />
+                            <Stack.Screen
+                                name="Main"
+                                component={DrawerRoutes}
+                                options={{ headerShown: false }}
+                            />
+                            <Stack.Screen
+                                name="ComplaintDetails"
+                                component={ComplaintDetailsPage}
+                                options={{ title: "Complaint Details" }}
+                            />
+                            <Stack.Screen
+                                name="MaintenanceDetails"
+                                component={MaintenanceDetailsPage}
+                                options={{ title: "Maintenance Details" }}
+                            />
+                            <Stack.Screen
+                                name="AddNewComplaint"
+                                component={NewComplaintPage}
+                                options={{ title: "Complaints" }}
+                            />
+                            <Stack.Screen
+                                name="AddNewMaintenance"
+                                component={NewMaintenancePage}
+                                options={{ title: "Maintenance" }}
+                            />
+                        </Stack.Navigator>
+                    </NavigationContainer>
+                </PaperProvider>
+            </GestureHandlerRootView>
+        </ErrorBoundary>
     );
 }
 

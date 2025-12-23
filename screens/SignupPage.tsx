@@ -5,7 +5,9 @@ import {
   View,
   StyleSheet,
   Alert,
-  ScrollView
+  ScrollView,
+  Image,
+  ImageBackground,
 } from 'react-native';
 import { TextInput, Button, Text, Title, HelperText } from 'react-native-paper';
 
@@ -78,104 +80,148 @@ export default function SignupPage({ navigation }: any) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.content}>
-        <Title style={styles.title}>Create Account</Title>
-        <Text style={styles.subtitle}>Join DormiEase today</Text>
+    <ImageBackground
+      source={require('../assets/images/unikl-background.png')}
+      style={styles.backgroundImage}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.content}>
+            <Image
+              source={require('../assets/images/unikl-logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Title style={styles.title}>Create Account</Title>
+            <Text style={styles.subtitle}>Join DormiEase today</Text>
 
-        <TextInput
-          mode="outlined"
-          label="Full Name"
-          value={name}
-          onChangeText={setName}
-          style={styles.input}
-          left={<TextInput.Icon icon="account" />}
-        />
+            <TextInput
+              mode="outlined"
+              label="Full Name"
+              value={name}
+              onChangeText={setName}
+              style={styles.input}
+              left={<TextInput.Icon icon="account" />}
+            />
 
-        <TextInput
-          mode="outlined"
-          label="Student ID"
-          value={studentId}
-          onChangeText={setStudentId}
-          keyboardType="numeric"
-          style={styles.input}
-          left={<TextInput.Icon icon="card-account-details" />}
-        />
+            <TextInput
+              mode="outlined"
+              label="Student ID"
+              value={studentId}
+              onChangeText={setStudentId}
+              keyboardType="numeric"
+              style={styles.input}
+              left={<TextInput.Icon icon="card-account-details" />}
+            />
 
-        <TextInput
-          mode="outlined"
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          style={styles.input}
-          left={<TextInput.Icon icon="email" />}
-        />
+            <TextInput
+              mode="outlined"
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
+              left={<TextInput.Icon icon="email" />}
+            />
 
-        <TextInput
-          mode="outlined"
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.input}
-          left={<TextInput.Icon icon="lock" />}
-        />
+            <TextInput
+              mode="outlined"
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              style={styles.input}
+              left={<TextInput.Icon icon="lock" />}
+            />
 
-        <Button
-          mode="contained"
-          onPress={handleSignup}
-          loading={loading}
-          style={styles.button}
-          contentStyle={{ paddingVertical: 6 }}
-        >
-          Sign Up
-        </Button>
+            <Button
+              mode="contained"
+              onPress={handleSignup}
+              loading={loading}
+              style={styles.button}
+              contentStyle={{ paddingVertical: 6 }}
+            >
+              Sign Up
+            </Button>
 
-        <Button
-          mode="text"
-          onPress={() => navigation.replace('Login')}
-          style={styles.link}
-        >
-          Already have an account? Log in
-        </Button>
+            <Button
+              mode="text"
+              onPress={() => navigation.replace('Login')}
+              style={styles.link}
+            >
+              Already have an account? Log in
+            </Button>
+          </View>
+        </ScrollView>
       </View>
-    </ScrollView>
+    </ImageBackground>
   );
 }
 
-// styles
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 107, 53, 0.15)', // Subtle UniKL orange tint
+  },
   container: {
     flexGrow: 1,
-    padding: 20,
+    padding: 24,
     justifyContent: 'center',
-    backgroundColor: '#fff',
   },
   content: {
-    padding: 10,
+    padding: 32,
+    paddingBottom: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)', // Glassmorphism
+    borderRadius: 32,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.3,
+    shadowRadius: 30,
+    elevation: 15,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    alignSelf: 'center',
+    marginBottom: 24,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '800',
     marginBottom: 8,
     textAlign: 'center',
-    color: '#1e293b'
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   subtitle: {
     textAlign: 'center',
-    marginBottom: 30,
-    color: '#64748b'
+    marginBottom: 28,
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
   },
   input: {
     marginBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 12,
   },
   button: {
-    marginTop: 10,
-    borderRadius: 8,
-    backgroundColor: '#FF6B35'
+    marginTop: 16,
+    borderRadius: 16,
+    backgroundColor: '#FF6B35',
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
   },
   link: {
     marginTop: 16,

@@ -6,6 +6,8 @@ import {
   View,
   StyleSheet,
   Alert,
+  Image,
+  ImageBackground,
 } from 'react-native';
 import { TextInput, Button, Text, Title, Surface } from 'react-native-paper';
 
@@ -62,56 +64,67 @@ export default function LoginPage({ navigation }: any) {
   }, []);
 
   return (
-    <View style={styles.gradientBackground}>
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Title style={styles.title}>Welcome Back</Title>
-          <Text style={styles.subtitle}>Sign in to continue</Text>
+    <ImageBackground
+      source={require('../assets/images/unikl-background.png')}
+      style={styles.gradientBackground}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          <View style={styles.content}>
+            <Image
+              source={require('../assets/images/unikl-logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Title style={styles.title}>Welcome Back</Title>
+            <Text style={styles.subtitle}>Sign in to continue</Text>
 
-          <TextInput
-            mode="outlined"
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={styles.input}
-            left={<TextInput.Icon icon="email" />}
-            theme={{ colors: { background: 'white' } }}
-          />
+            <TextInput
+              mode="outlined"
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
+              left={<TextInput.Icon icon="email" />}
+              theme={{ colors: { background: 'white' } }}
+            />
 
-          <TextInput
-            mode="outlined"
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            style={styles.input}
-            left={<TextInput.Icon icon="lock" />}
-            theme={{ colors: { background: 'white' } }}
-          />
+            <TextInput
+              mode="outlined"
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              style={styles.input}
+              left={<TextInput.Icon icon="lock" />}
+              theme={{ colors: { background: 'white' } }}
+            />
 
-          <Button
-            mode="contained"
-            onPress={handleLogin}
-            loading={loading}
-            style={styles.button}
-            contentStyle={{ paddingVertical: 6 }}
-          >
-            Login
-          </Button>
+            <Button
+              mode="contained"
+              onPress={handleLogin}
+              loading={loading}
+              style={styles.button}
+              contentStyle={{ paddingVertical: 6 }}
+            >
+              Login
+            </Button>
 
-          <Button
-            mode="text"
-            onPress={() => navigation.replace('Signup')}
-            style={styles.link}
-            labelStyle={{ color: 'white' }}
-          >
-            Don't have an account? Sign up
-          </Button>
+            <Button
+              mode="text"
+              onPress={() => navigation.replace('Signup')}
+              style={styles.link}
+              labelStyle={{ color: '#fff', fontWeight: '600' }}
+            >
+              Don't have an account? Sign up
+            </Button>
+          </View>
         </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }
 
@@ -119,7 +132,10 @@ export default function LoginPage({ navigation }: any) {
 const styles = StyleSheet.create({
   gradientBackground: {
     flex: 1,
-    backgroundColor: '#FF6B35', // UniKL Orange background
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 107, 53, 0.15)', // Subtle UniKL orange tint
   },
   container: {
     flex: 1,
@@ -127,37 +143,54 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    padding: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.98)',
-    borderRadius: 24,
+    padding: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)', // Glassmorphism - semi-transparent
+    borderRadius: 32,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.3,
+    shadowRadius: 30,
+    elevation: 15,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: 36,
+    fontWeight: '800',
     marginBottom: 8,
     textAlign: 'center',
-    color: '#FF6B35' // UniKL Orange
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   subtitle: {
     textAlign: 'center',
-    marginBottom: 30,
-    color: '#64748b',
+    marginBottom: 32,
     fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
   },
   input: {
     marginBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 12,
   },
   button: {
-    marginTop: 10,
-    borderRadius: 12,
+    marginTop: 16,
     backgroundColor: '#FF6B35',
-    elevation: 4,
+    borderRadius: 16,
+    paddingVertical: 4,
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
   },
   link: {
     marginTop: 16,

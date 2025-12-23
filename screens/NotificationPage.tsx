@@ -43,7 +43,7 @@ export default function NotificationPage({ navigation }: any) {
 
     try {
       const res = await axios.get(
-        `${API_BASE}/notification/${user.id}`
+        `${API_BASE}/notification/user/${user.id}`
       )
       setNotifications(res.data)
     } catch (error: any) {
@@ -51,7 +51,10 @@ export default function NotificationPage({ navigation }: any) {
         "Failed to fetch notifications:",
         error.response?.data || error.message
       )
-      Alert.alert("Error", "Failed to fetch notifications")
+      // Don't show alert for empty notifications
+      if (error.response?.status !== 404) {
+        Alert.alert("Error", "Failed to fetch notifications")
+      }
     } finally {
       setLoading(false)
     }
@@ -104,12 +107,15 @@ export default function NotificationPage({ navigation }: any) {
         <Surface style={[styles.card, isUnread && styles.unreadCard]} elevation={isUnread ? 2 : 0}>
           <View style={styles.row}>
             <Title style={[styles.title, isUnread && styles.unreadTitle]}>
-              {item.notification?.title}
+              {item.notification?.title || 'Notification'}
             </Title>
             {isUnread && <Badge size={10} style={{ backgroundColor: theme.colors.primary }} />}
           </View>
           <Text variant="bodyMedium" style={{ color: '#4b5563' }}>
-            {item.notification?.message}
+            {item.notification?.message || 'No message'}
+          </Text>
+          <Text variant="labelSmall" style={{ color: '#94a3b8', marginTop: 8 }}>
+            {new Date(item.created_at).toLocaleString()}
           </Text>
         </Surface>
       </TouchableOpacity>
