@@ -1,4 +1,17 @@
 import { Link, useNavigate, useLocation } from "react-router-dom"
+import {
+    Home,
+    Building2,
+    FileText,
+    Bed,
+    AlertCircle,
+    Wrench,
+    Bell,
+    CreditCard,
+    BarChart3,
+    LogOut,
+    User
+} from "lucide-react"
 
 type Props = {
     userName: string
@@ -15,96 +28,77 @@ export default function TopBar({ userName }: Props) {
         navigate("/login")
     }
 
+    const navItems = [
+        { path: "/home", label: "Home", icon: Home },
+        { path: "/hostels", label: "Hostels", icon: Building2 },
+        { path: "/hostel-applications", label: "Applications", icon: FileText },
+        { path: "/rooms", label: "Rooms", icon: Bed },
+        { path: "/complaints", label: "Complaints", icon: AlertCircle },
+        { path: "/maintenances", label: "Maintenance", icon: Wrench },
+        { path: "/notifications", label: "Notifications", icon: Bell },
+        { path: "/payments", label: "Payments", icon: CreditCard },
+        { path: "/reports", label: "Reports", icon: BarChart3 }
+    ]
+
     return (
-        <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-white/20 z-50 shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-gray-100 z-50 shadow-lg">
+            <div className="max-w-7xl mx-auto px-6">
                 <div className="flex justify-between items-center h-16">
-                    <div className="flex space-x-8">
-                        <Link
-                            to="/home"
-                            className={`px-3 py-2 text-sm font-medium ${isActive("/home")
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-gray-900 hover:text-gray-700"
-                                }`}
-                        >
-                            HOME
-                        </Link>
-                        <Link
-                            to="/hostels"
-                            className={`px-3 py-2 text-sm font-medium ${isActive("/hostels")
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-gray-900 hover:text-gray-700"
-                                }`}
-                        >
-                            HOSTELS
-                        </Link>
-                        <Link
-                            to="/hostel-applications"
-                            className={`px-3 py-2 text-sm font-medium ${isActive("/hostel-applications")
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-gray-900 hover:text-gray-700"
-                                }`}
-                        >
-                            HOSTEL APPLICATION
-                        </Link>
-                        <Link
-                            to="/rooms"
-                            className={`px-3 py-2 text-sm font-medium ${isActive("/rooms")
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-gray-900 hover:text-gray-700"
-                                }`}
-                        >
-                            ROOMS
-                        </Link>
-                        <Link
-                            to="/complaints"
-                            className={`px-3 py-2 text-sm font-medium ${isActive("/complaints")
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-gray-900 hover:text-gray-700"
-                                }`}
-                        >
-                            COMPLAINTS
-                        </Link>
-                        <Link
-                            to="/maintenances"
-                            className={`px-3 py-2 text-sm font-medium ${isActive("/maintenances")
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-gray-900 hover:text-gray-700"
-                                }`}
-                        >
-                            MAINTENANCE
-                        </Link>
-                        <Link
-                            to="/notifications"
-                            className={`px-3 py-2 text-sm font-medium ${isActive("/notifications")
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-gray-900 hover:text-gray-700"
-                                }`}
-                        >
-                            NOTIFICATIONS
-                        </Link>
-                        <Link
-                            to="/payments"
-                            className={`px-3 py-2 text-sm font-medium ${isActive("/payments")
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-gray-900 hover:text-gray-700"
-                                }`}
-                        >
-                            PAYMENTS
-                        </Link>
-                        <Link
-                            to="/reports"
-                            className={`px-3 py-2 text-sm font-medium ${isActive("/reports")
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-gray-900 hover:text-gray-700"
-                                }`}
-                        >
-                            REPORTS
-                        </Link>
+                    {/* Navigation Links */}
+                    <div className="flex items-center space-x-1">
+                        {navItems.map((item) => {
+                            const Icon = item.icon
+                            const active = isActive(item.path)
+
+                            return (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    className={`
+                                        group relative px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300
+                                        flex items-center gap-2
+                                        ${active
+                                            ? "text-white bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/30"
+                                            : "text-gray-600 hover:text-primary hover:bg-primary/5"
+                                        }
+                                    `}
+                                >
+                                    <Icon
+                                        size={18}
+                                        className={`transition-transform duration-300 ${active ? "" : "group-hover:scale-110"}`}
+                                    />
+                                    <span className="hidden lg:inline">{item.label}</span>
+
+                                    {/* Active indicator dot */}
+                                    {active && (
+                                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full" />
+                                    )}
+                                </Link>
+                            )
+                        })}
                     </div>
-                    <div className="flex items-center space-x-4">
-                        <span className="text-gray-600 text-sm">Hello, <span className="font-medium">{userName || "Admin"}</span></span>
-                        <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded text-sm font-medium transition-colors" onClick={handleLogout}>LOGOUT</button>
+
+                    {/* User Section */}
+                    <div className="flex items-center gap-4">
+                        {/* User Info */}
+                        <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-md">
+                                <User size={16} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-xs text-gray-500 font-medium">Welcome back</p>
+                                <p className="text-sm font-bold text-gray-800">{userName || "Admin"}</p>
+                            </div>
+                        </div>
+
+                        {/* Logout Button */}
+                        <button
+                            className="group relative px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl text-sm font-bold transition-all duration-300 shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 hover:-translate-y-0.5 flex items-center gap-2"
+                            onClick={handleLogout}
+                        >
+                            <LogOut size={16} className="group-hover:rotate-12 transition-transform" />
+                            <span className="hidden sm:inline">Logout</span>
+                        </button>
                     </div>
                 </div>
             </div>
