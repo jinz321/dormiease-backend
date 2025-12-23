@@ -75,6 +75,7 @@ export class MessagingController {
                 sender_id: finalSenderId,
                 sender_user_id: sender_user_id || sender_id || null,
                 sender_admin_id: sender_admin_id || null,
+                is_admin: !!(sender_admin_id || sender_admin_id === '1'), // Auto-detect admin
                 text: finalText,
                 content: finalText,
                 is_read: false,
