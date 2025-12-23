@@ -115,21 +115,12 @@ export class MessagingController {
 
     /**
  * Get all conversations for admin view
- * @route GET /api/admin/conversations/:adminId
+ * @route GET /api/admin/conversations
  */
     static async getAdminConversations(req: Request, res: Response) {
         try {
-            const adminId = req.params.adminId;
-
-            if (!adminId) {
-                return res.status(400).json({ message: "Admin ID is required" });
-            }
-
-            // Fetch ONLY conversations for this specific admin
-            const snapshot = await db.collection('conversations')
-                .where('admin_id', '==', adminId)
-                .get();
-
+            // Fetch ALL conversations - shared among all admins
+            const snapshot = await db.collection('conversations').get();
             const conversations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
             // Sort by latest activity (updated_at)
