@@ -215,4 +215,65 @@ export class PaymentController {
             res.status(500).json({ message: "Failed to fetch payment statistics" });
         }
     }
+
+    /**
+     * Process a payment (Simulated payment gateway)
+     * @route POST /api/payment/process/:id
+     */
+    static async processPayment(req: Request, res: Response): Promise<void> {
+        const paymentId = req.params.id;
+        const { payment_method } = req.body;
+
+        if (!paymentId) {
+            res.status(400).json({ message: "Invalid payment id" });
+            return;
+        }
+
+        if (!payment_method) {
+            res.status(400).json({ message: "Payment method is required" });
+            return;
+        }
+
+        try {
+            const paymentRef = db.collection('payments').doc(paymentId);
+            const paymentDoc = await paymentRef.get();
+
+            if (!paymentDoc.exists) {
+                res.status(404).json({ message: "Payment not found" });
+                return;
+            }
+
+            const paymentData = paymentDoc.data();
+
+            // Check if already paid
+            if (paymentData?.status === 'paid') {
+                res.status(400).json({ message: "Payment already completed" });
+                return;
+            }
+
+            // Simulate payment processing
+            // In production, this would call Stripe/PayPal/etc API
+            const transactionId = `TXN${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+            // Update payment record
+            await paymentRef.update({
+                status: 'paid',
+                payment_method,
+                paid_date: new Date().toISOString(),
+                transaction_id: transactionId,
+                updated_at: new Date().toISOString()
+            });
+
+            const updatedDoc = await paymentRef.get();
+
+            res.status(200).json({
+                message: "Payment processed successfully",
+                payment: { id: updatedDoc.id, ...updatedDoc.data() },
+                transaction_id: transactionId
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Failed to process payment" });
+        }
+    }
 }

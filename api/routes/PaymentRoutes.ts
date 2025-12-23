@@ -12,5 +12,6 @@ router.delete('/:id', PaymentController.deletePayment as express.RequestHandler)
 
 // User routes
 router.get('/user/:userId', PaymentController.getUserPayments as express.RequestHandler);
+router.post('/process/:id', PaymentController.processPayment as express.RequestHandler);
 
 export default router;
