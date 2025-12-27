@@ -1,14 +1,15 @@
 // SignupPage.tsx
 import axios from 'axios';
 import React, { useState } from 'react';
+import UniklLogo from '../components/UniklLogo';
 import {
   View,
   StyleSheet,
   Alert,
   ScrollView,
   Image,
-  ImageBackground,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { TextInput, Button, Text, Title, HelperText } from 'react-native-paper';
 
 import { API_URL } from '../config';
@@ -80,10 +81,11 @@ export default function SignupPage({ navigation }: any) {
   };
 
   return (
-    <ImageBackground
-      source={require('../assets/images/unikl-background.png')}
+    <LinearGradient
+      colors={['#667eea', '#764ba2', '#f093fb']}
       style={styles.backgroundImage}
-      resizeMode="cover"
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
     >
       <View style={styles.overlay}>
         <ScrollView contentContainerStyle={styles.container}>
@@ -156,7 +158,7 @@ export default function SignupPage({ navigation }: any) {
           </View>
         </ScrollView>
       </View>
-    </ImageBackground>
+    </LinearGradient>
   );
 }
 
@@ -191,6 +193,17 @@ const styles = StyleSheet.create({
     height: 100,
     alignSelf: 'center',
     marginBottom: 24,
+  },
+  appName: {
+    fontSize: 48,
+    fontWeight: '900',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 8,
   },
   title: {
     fontSize: 32,

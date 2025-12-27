@@ -20,7 +20,10 @@ import MessagingPage from './screens/MessagingPage';
 import NotificationPage from './screens/NotificationPage';
 import ProfilePage from './screens/ProfilePage';
 import PaymentPage from './screens/PaymentPage';
+import DashboardPage from './screens/DashboardPage';
+import AddRoomPage from './screens/AddRoomPage';
 import ErrorBoundary from './components/ErrorBoundary';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Standard stack/drawer setup
 const Stack = createNativeStackNavigator();
@@ -90,8 +93,13 @@ function CustomDrawerContent(props: any) {
 
     return (
         <View style={{ flex: 1 }}>
-            {/* Premium Header */}
-            <View style={styles.premiumHeader}>
+            {/* Modern Gradient Header */}
+            <LinearGradient
+                colors={['#FF6B6B', '#9D84B7']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.premiumHeader}
+            >
                 <View style={styles.userInfoSection}>
                     {user?.profile_image ? (
                         <Avatar.Image
@@ -113,11 +121,19 @@ function CustomDrawerContent(props: any) {
                         <Caption style={styles.premiumCaption}>{user?.email || ''}</Caption>
                     </View>
                 </View>
-            </View>
+            </LinearGradient>
 
             <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 10 }}>
                 {/* Navigation Items */}
                 <PaperDrawer.Section style={styles.drawerSection}>
+                    <PaperDrawer.Item
+                        icon="view-dashboard"
+                        label="Dashboard"
+                        active={isActive('Dashboard')}
+                        onPress={() => props.navigation.navigate('Dashboard')}
+                        theme={theme}
+                        style={isActive('Dashboard') ? styles.activeItem : styles.item}
+                    />
                     <PaperDrawer.Item
                         icon="home-outline"
                         label="Hostels"
@@ -202,6 +218,7 @@ function DrawerRoutes() {
                 drawerInactiveTintColor: '#64748b',
             }}
         >
+            <Drawer.Screen name="Dashboard" component={DashboardPage} />
             <Drawer.Screen name="Hostels" component={HostelApplicationPage} />
             <Drawer.Screen name="Profile" component={ProfilePage} />
             <Drawer.Screen name="Maintenance" component={MaintenanceListPage} />
@@ -254,6 +271,11 @@ export default function App() {
                                 name="AddNewMaintenance"
                                 component={NewMaintenancePage}
                                 options={{ title: "Maintenance" }}
+                            />
+                            <Stack.Screen
+                                name="AddRoom"
+                                component={AddRoomPage}
+                                options={{ title: "Add New Room" }}
                             />
                         </Stack.Navigator>
                     </NavigationContainer>

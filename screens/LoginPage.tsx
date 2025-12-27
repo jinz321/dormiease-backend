@@ -2,13 +2,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import UniklLogo from '../components/UniklLogo';
 import {
   View,
   StyleSheet,
   Alert,
   Image,
-  ImageBackground,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { TextInput, Button, Text, Title, Surface } from 'react-native-paper';
 
 import { API_URL } from '../config';
@@ -64,10 +65,11 @@ export default function LoginPage({ navigation }: any) {
   }, []);
 
   return (
-    <ImageBackground
-      source={require('../assets/images/unikl-background.png')}
+    <LinearGradient
+      colors={['#667eea', '#764ba2', '#f093fb']}
       style={styles.gradientBackground}
-      resizeMode="cover"
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
@@ -124,7 +126,7 @@ export default function LoginPage({ navigation }: any) {
           </View>
         </View>
       </View>
-    </ImageBackground>
+    </LinearGradient>
   );
 }
 
@@ -159,6 +161,17 @@ const styles = StyleSheet.create({
     height: 120,
     alignSelf: 'center',
     marginBottom: 20,
+  },
+  appName: {
+    fontSize: 48,
+    fontWeight: '900',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 8,
   },
   title: {
     fontSize: 36,

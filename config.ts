@@ -8,7 +8,7 @@
  */
 
 // ⚙️ CONFIGURATION - Change this to switch between local and Render
-const USE_RENDER = true; // Set to true to use Render, false for local development
+const USE_RENDER = false; // Set to true to use Render, false for local development
 
 // 🌐 RENDER BACKEND URL - Replace with your actual Render URL
 const RENDER_URL = 'https://dormiease-backend.onrender.com/api';
