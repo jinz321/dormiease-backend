@@ -17,6 +17,24 @@ export class HostelController {
                 return res.status(400).json({ message: "User ID and Hostel ID are required" });
             }
 
+            // Check if user already has an application
+            const existingAppSnapshot = await db.collection('hostel_applications')
+                .where('user_id', '==', user_id)
+                .limit(1)
+                .get();
+
+            if (!existingAppSnapshot.empty) {
+                const existingApp = existingAppSnapshot.docs[0].data();
+                return res.status(400).json({
+                    message: "You already have an active hostel application",
+                    existingApplication: {
+                        id: existingAppSnapshot.docs[0].id,
+                        status: existingApp.status,
+                        hostel_id: existingApp.hostel_id
+                    }
+                });
+            }
+
             const ref = db.collection('hostel_applications').doc();
             const application = {
                 id: ref.id,
@@ -196,6 +214,113 @@ export class HostelController {
         } catch (error) {
             console.error("Create hostel error:", error);
             return res.status(500).json({ message: "Failed to create hostel" });
+        }
+    }
+
+    /**
+     * Get user's hostel application
+     * @route GET /api/hostels/user-application/:userId
+     */
+    static async getUserApplication(req: Request, res: Response) {
+        try {
+            const { userId } = req.params;
+
+            console.log('getUserApplication called with userId:', userId);
+
+            if (!userId) {
+                return res.status(400).json({ message: "User ID is required" });
+            }
+
+            // Find user's hostel application - check both user_id and userId fields
+            console.log('Querying hostel_applications for user_id:', userId);
+            let snapshot = await db.collection('hostel_applications')
+                .where('user_id', '==', userId)
+                .limit(1)
+                .get();
+
+            // If not found with user_id, try userId field
+            if (snapshot.empty) {
+                console.log('Not found with user_id, trying userId field...');
+                snapshot = await db.collection('hostel_applications')
+                    .where('userId', '==', userId)
+                    .limit(1)
+                    .get();
+            }
+
+            console.log('Query result - empty?', snapshot.empty);
+            console.log('Number of docs found:', snapshot.docs.length);
+
+            if (snapshot.empty) {
+                return res.status(404).json({ message: "No application found" });
+            }
+
+            const appDoc = snapshot.docs[0];
+            const appData = appDoc.data();
+            console.log('Application data:', appData);
+
+            // Fetch hostel details
+            const hostelSnap = await db.collection('hostels').doc(appData.hostel_id || appData.hostelId).get();
+            const hostelData = hostelSnap.exists ? hostelSnap.data() : null;
+
+            // Fetch room details if assigned
+            let roomData = null;
+            if (appData.room_id || appData.roomId) {
+                const roomSnap = await db.collection('rooms').doc(appData.room_id || appData.roomId).get();
+                if (roomSnap.exists) {
+                    roomData = roomSnap.data();
+                }
+            }
+
+            return res.status(200).json({
+                applicationId: appDoc.id,
+                hostelName: hostelData?.name || null,
+                hostelId: appData.hostel_id || appData.hostelId,
+                roomName: roomData?.name || null,
+                roomId: appData.room_id || appData.roomId || null,
+                status: appData.status,
+                moveInDate: hostelData?.moveInDate || null,
+                moveOutDate: hostelData?.moveOutDate || null,
+                created_at: appData.created_at
+            });
+        } catch (error) {
+            console.error("Get user application error:", error);
+            return res.status(500).json({ message: "Failed to fetch application" });
+        }
+    }
+
+    /**
+     * Update hostel move-in and move-out dates
+     * @route PUT /api/hostels/update-dates
+     */
+    static async updateHostelDates(req: Request, res: Response) {
+        try {
+            const { hostelId, moveInDate, moveOutDate } = req.body;
+
+            if (!hostelId) {
+                return res.status(400).json({ message: "Hostel ID is required" });
+            }
+
+            const hostelRef = db.collection('hostels').doc(hostelId);
+            const hostelDoc = await hostelRef.get();
+
+            if (!hostelDoc.exists) {
+                return res.status(404).json({ message: "Hostel not found" });
+            }
+
+            const updateData: any = {};
+            if (moveInDate) updateData.moveInDate = moveInDate;
+            if (moveOutDate) updateData.moveOutDate = moveOutDate;
+
+            await hostelRef.update(updateData);
+
+            const updatedDoc = await hostelRef.get();
+            return res.status(200).json({
+                message: "Hostel dates updated successfully",
+                hostel: { id: updatedDoc.id, ...updatedDoc.data() }
+            });
+        } catch (error) {
+            console.error("Update hostel dates error:", error);
+            return res.status(500).json({ message: "Failed to update hostel dates" });
         }
     }
 }

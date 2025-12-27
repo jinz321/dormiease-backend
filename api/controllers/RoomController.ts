@@ -187,9 +187,11 @@ export class RoomController {
      */
     static async create(req: Request, res: Response) {
         try {
+            console.log("Received create room request:", req.body);
             const { name, maxSize, hostelId } = req.body;
 
             if (!name || !maxSize) {
+                console.log("Missing required fields: name or maxSize");
                 return res.status(400).json({ message: "Room name and maxSize are required" });
             }
 
@@ -202,10 +204,12 @@ export class RoomController {
                 currentUsers: 0,
                 created_at: new Date().toISOString()
             };
+            console.log("Creating room object:", room);
             await ref.set(room);
 
             // Update Hostel Capacity if hostelId is provided
             if (hostelId) {
+                console.log("Updating hostel capacity for:", hostelId);
                 const hostelRef = db.collection('hostels').doc(hostelId);
                 const hostelDoc = await hostelRef.get();
                 if (hostelDoc.exists) {
@@ -213,6 +217,8 @@ export class RoomController {
                         totalRooms: (hostelDoc.data()?.totalRooms || 0) + 1,
                         totalCapacity: (hostelDoc.data()?.totalCapacity || 0) + parseInt(maxSize)
                     });
+                } else {
+                    console.log("Hostel not found:", hostelId);
                 }
             }
 
