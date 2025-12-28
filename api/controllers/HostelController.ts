@@ -258,6 +258,20 @@ export class HostelController {
             const appData = appDoc.data();
             console.log('Application data:', appData);
 
+            // Fetch user details
+            let studentName = null;
+            let studentId = null;
+            try {
+                const userSnap = await db.collection('users').doc(userId).get();
+                if (userSnap.exists) {
+                    const userData = userSnap.data();
+                    studentName = userData?.name || null;
+                    studentId = userData?.student_id || null;
+                }
+            } catch (err) {
+                console.log('Could not fetch user details:', err);
+            }
+
             // Fetch hostel details
             const hostelSnap = await db.collection('hostels').doc(appData.hostel_id || appData.hostelId).get();
             const hostelData = hostelSnap.exists ? hostelSnap.data() : null;
@@ -273,6 +287,8 @@ export class HostelController {
 
             return res.status(200).json({
                 applicationId: appDoc.id,
+                studentName: studentName,
+                studentId: studentId,
                 hostelName: hostelData?.name || null,
                 hostelId: appData.hostel_id || appData.hostelId,
                 roomName: roomData?.name || null,
