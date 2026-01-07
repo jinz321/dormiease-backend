@@ -1,11 +1,30 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+import Button from '@mui/material/Button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+} from '@/components/ui/card';
+import {
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
+} from '@/components/ui/table';
+import {
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+} from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material';
+import { DollarSign, Plus, TrendingUp, Clock, AlertCircle, CheckCircle2, Wallet, Calendar, Receipt } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 
 interface Payment {
@@ -126,195 +145,284 @@ export default function FeeManagementPage() {
         }
     };
 
-    const getStatusBadge = (status: string) => {
-        const colors = {
-            paid: 'bg-green-100 text-green-800',
-            pending: 'bg-yellow-100 text-yellow-800',
-            overdue: 'bg-red-100 text-red-800'
-        };
-        return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-    };
-
     return (
-        <div className="p-6 space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold">Fee Management</h1>
-                    <p className="text-gray-500">Manage student payments and fees</p>
+        <div className="pt-24 pb-10 px-4 min-h-screen">
+            <div className="max-w-7xl mx-auto space-y-8">
+
+                {/* Header Section */}
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800">Fee Management</h1>
+                        <p className="text-gray-500 mt-1">Manage student payments and fees</p>
+                    </div>
+
+                    <Button
+                        variant="contained"
+                        className="bg-[#2196F3] hover:bg-blue-600 text-white font-bold py-3 px-6 shadow-lg rounded-xl uppercase tracking-wide text-sm transition-transform active:scale-95"
+                        onClick={() => setIsCreateDialogOpen(true)}
+                        startIcon={<Plus size={20} />}
+                    >
+                        Create Payment
+                    </Button>
                 </div>
 
-                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button>Create Payment Record</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Create New Payment</DialogTitle>
-                            <DialogDescription>Add a new fee record for a student</DialogDescription>
-                        </DialogHeader>
-                        <form onSubmit={handleCreatePayment} className="space-y-4">
-                            <div>
-                                <Label htmlFor="user">Student</Label>
-                                <Select
-                                    value={formData.user_id}
-                                    onValueChange={(value) => setFormData({ ...formData, user_id: value })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select student" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {users.map((user) => (
-                                            <SelectItem key={user.id} value={user.id}>
-                                                {user.name} ({user.email})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                {/* Statistics Cards */}
+                {stats && (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        {/* Total Amount */}
+                        <Card className="shadow-xl bg-white rounded-2xl overflow-hidden border-none ring-1 ring-gray-100 hover:shadow-2xl transition-shadow">
+                            <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Total Amount</p>
+                                        <h3 className="text-3xl font-bold text-gray-800">RM {stats.total_amount.toFixed(2)}</h3>
+                                    </div>
+                                    <div className="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center">
+                                        <Wallet className="text-blue-500" size={28} />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                            <div>
-                                <Label htmlFor="amount">Amount (RM)</Label>
-                                <Input
-                                    id="amount"
-                                    type="number"
-                                    step="0.01"
-                                    value={formData.amount}
-                                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                    required
-                                />
-                            </div>
+                        {/* Paid */}
+                        <Card className="shadow-xl bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl overflow-hidden border-none hover:shadow-2xl transition-shadow">
+                            <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-bold text-green-100 uppercase tracking-wide mb-1">Paid ({stats.paid_count})</p>
+                                        <h3 className="text-3xl font-bold text-white">RM {stats.paid_amount.toFixed(2)}</h3>
+                                    </div>
+                                    <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
+                                        <CheckCircle2 className="text-white" size={28} />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                            <div>
-                                <Label htmlFor="fee_type">Fee Type</Label>
-                                <Select
-                                    value={formData.fee_type}
-                                    onValueChange={(value) => setFormData({ ...formData, fee_type: value })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="monthly">Monthly</SelectItem>
-                                        <SelectItem value="semester">Semester</SelectItem>
-                                        <SelectItem value="annual">Annual</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                        {/* Pending */}
+                        <Card className="shadow-xl bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl overflow-hidden border-none hover:shadow-2xl transition-shadow">
+                            <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-bold text-yellow-100 uppercase tracking-wide mb-1">Pending ({stats.pending_count})</p>
+                                        <h3 className="text-3xl font-bold text-white">RM {stats.pending_amount.toFixed(2)}</h3>
+                                    </div>
+                                    <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
+                                        <Clock className="text-white" size={28} />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                            <div>
-                                <Label htmlFor="due_date">Due Date</Label>
-                                <Input
-                                    id="due_date"
-                                    type="date"
-                                    value={formData.due_date}
-                                    onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                                    required
-                                />
-                            </div>
+                        {/* Overdue */}
+                        <Card className="shadow-xl bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl overflow-hidden border-none hover:shadow-2xl transition-shadow">
+                            <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-bold text-red-100 uppercase tracking-wide mb-1">Overdue ({stats.overdue_count})</p>
+                                        <h3 className="text-3xl font-bold text-white">RM {stats.overdue_amount.toFixed(2)}</h3>
+                                    </div>
+                                    <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
+                                        <AlertCircle className="text-white" size={28} />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
 
-                            <Button type="submit" disabled={loading} className="w-full">
-                                {loading ? 'Creating...' : 'Create Payment'}
-                            </Button>
-                        </form>
-                    </DialogContent>
-                </Dialog>
-            </div>
-
-            {/* Statistics Cards */}
-            {stats && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>Total Amount</CardDescription>
-                            <CardTitle className="text-2xl">RM {stats.total_amount.toFixed(2)}</CardTitle>
-                        </CardHeader>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>Paid ({stats.paid_count})</CardDescription>
-                            <CardTitle className="text-2xl text-green-600">
-                                RM {stats.paid_amount.toFixed(2)}
-                            </CardTitle>
-                        </CardHeader>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>Pending ({stats.pending_count})</CardDescription>
-                            <CardTitle className="text-2xl text-yellow-600">
-                                RM {stats.pending_amount.toFixed(2)}
-                            </CardTitle>
-                        </CardHeader>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>Overdue ({stats.overdue_count})</CardDescription>
-                            <CardTitle className="text-2xl text-red-600">
-                                RM {stats.overdue_amount.toFixed(2)}
-                            </CardTitle>
-                        </CardHeader>
-                    </Card>
-                </div>
-            )}
-
-            {/* Payments Table */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Payment Records</CardTitle>
-                    <CardDescription>All student payment records</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b">
-                                    <th className="text-left p-2">Student</th>
-                                    <th className="text-left p-2">Amount</th>
-                                    <th className="text-left p-2">Type</th>
-                                    <th className="text-left p-2">Due Date</th>
-                                    <th className="text-left p-2">Status</th>
-                                    <th className="text-left p-2">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                {/* Payments Table */}
+                <Card className="shadow-xl bg-white rounded-2xl overflow-hidden border-none ring-1 ring-gray-100">
+                    <CardHeader className="bg-white border-b border-gray-100 p-6 flex flex-row items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <CardTitle className="text-xl font-bold text-gray-800">Payment Records</CardTitle>
+                            <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold">{payments.length} Records</span>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="bg-gray-50/50 border-b border-gray-100">
+                                    <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wide">Student</TableHead>
+                                    <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wide">Amount</TableHead>
+                                    <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wide">Type</TableHead>
+                                    <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wide">Due Date</TableHead>
+                                    <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wide">Status</TableHead>
+                                    <TableHead className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wide text-center">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {payments.map((payment) => (
-                                    <tr key={payment.id} className="border-b hover:bg-gray-50">
-                                        <td className="p-2">{payment.user_name}</td>
-                                        <td className="p-2 font-semibold">RM {payment.amount.toFixed(2)}</td>
-                                        <td className="p-2 capitalize">{payment.fee_type.replace('_', ' ')}</td>
-                                        <td className="p-2">{new Date(payment.due_date).toLocaleDateString()}</td>
-                                        <td className="p-2">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadge(payment.status)}`}>
+                                    <TableRow key={payment.id} className="hover:bg-gray-50/80 transition-all border-b border-gray-100 group">
+                                        <TableCell className="px-6 py-4">
+                                            <span className="font-bold text-gray-800 text-base">{payment.user_name}</span>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4">
+                                            <div className="flex items-center text-gray-800 font-bold">
+                                                <DollarSign size={16} className="mr-1 text-gray-400" />
+                                                RM {payment.amount.toFixed(2)}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4">
+                                            <span className="inline-flex items-center bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium capitalize">
+                                                <Calendar size={14} className="mr-2 text-gray-500" />
+                                                {payment.fee_type.replace('_', ' ')}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 text-gray-600 font-medium">
+                                            {new Date(payment.due_date).toLocaleDateString()}
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4">
+                                            <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold border ${payment.status === 'paid'
+                                                ? 'bg-green-50 text-green-700 border-green-100'
+                                                : payment.status === 'pending'
+                                                    ? 'bg-yellow-50 text-yellow-700 border-yellow-100'
+                                                    : 'bg-red-50 text-red-700 border-red-100'
+                                                }`}>
+                                                {payment.status === 'paid' && <CheckCircle2 size={14} className="mr-2" />}
+                                                {payment.status === 'pending' && <Clock size={14} className="mr-2" />}
+                                                {payment.status === 'overdue' && <AlertCircle size={14} className="mr-2" />}
                                                 {payment.status.toUpperCase()}
                                             </span>
-                                        </td>
-                                        <td className="p-2 space-x-2">
-                                            {payment.status !== 'paid' && (
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4">
+                                            <div className="flex items-center justify-center gap-2">
+                                                {payment.status === 'paid' && (
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        className="text-blue-600 border-blue-200 hover:bg-blue-50 font-semibold"
+                                                        onClick={() => window.open(`${API_BASE_URL}/receipts/${payment.id}/html`, '_blank')}
+                                                        startIcon={<Receipt size={16} />}
+                                                    >
+                                                        Receipt
+                                                    </Button>
+                                                )}
+                                                {payment.status !== 'paid' && (
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        className="text-green-600 border-green-200 hover:bg-green-50 font-semibold"
+                                                        onClick={() => handleMarkAsPaid(payment.id)}
+                                                    >
+                                                        Mark Paid
+                                                    </Button>
+                                                )}
                                                 <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => handleMarkAsPaid(payment.id)}
+                                                    size="small"
+                                                    variant="outlined"
+                                                    className="text-red-600 border-red-200 hover:bg-red-50 font-semibold"
+                                                    onClick={() => handleDeletePayment(payment.id)}
                                                 >
-                                                    Mark Paid
+                                                    Delete
                                                 </Button>
-                                            )}
-                                            <Button
-                                                size="sm"
-                                                variant="destructive"
-                                                onClick={() => handleDeletePayment(payment.id)}
-                                            >
-                                                Delete
-                                            </Button>
-                                        </td>
-                                    </tr>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
                                 ))}
-                            </tbody>
-                        </table>
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+
+                {/* Create Payment Dialog */}
+                {isCreateDialogOpen && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setIsCreateDialogOpen(false)}>
+                        <Card className="w-full max-w-md shadow-2xl bg-white rounded-2xl" onClick={(e) => e.stopPropagation()}>
+                            <CardHeader className="p-6 pb-2">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                                        <Plus className="text-blue-500" size={24} />
+                                    </div>
+                                    <CardTitle className="text-xl font-bold text-gray-800">Create New Payment</CardTitle>
+                                </div>
+                                <p className="text-sm text-gray-500 pl-1">Add a new fee record for a student</p>
+                            </CardHeader>
+
+                            <CardContent className="p-6">
+                                <form onSubmit={handleCreatePayment} className="space-y-4">
+                                    <div>
+                                        <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 block">Student</Label>
+                                        <FormControl fullWidth>
+                                            <Select
+                                                className="h-11 rounded-xl bg-gray-50/50 border-gray-200"
+                                                value={formData.user_id}
+                                                onChange={(e: SelectChangeEvent) => setFormData({ ...formData, user_id: e.target.value })}
+                                                displayEmpty
+                                            >
+                                                <MenuItem value="" disabled>Select student</MenuItem>
+                                                {users.map((user) => (
+                                                    <MenuItem key={user.id} value={user.id}>
+                                                        {user.name}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+
+                                    <div>
+                                        <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 block">Amount (RM)</Label>
+                                        <Input
+                                            className="h-11 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="e.g. 200.00"
+                                            value={formData.amount}
+                                            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 block">Fee Type</Label>
+                                        <FormControl fullWidth>
+                                            <Select
+                                                className="h-11 rounded-xl bg-gray-50/50 border-gray-200"
+                                                value={formData.fee_type}
+                                                onChange={(e: SelectChangeEvent) => setFormData({ ...formData, fee_type: e.target.value })}
+                                            >
+                                                <MenuItem value="monthly">Monthly</MenuItem>
+                                                <MenuItem value="semester">Semester</MenuItem>
+                                                <MenuItem value="annual">Annual</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+
+                                    <div>
+                                        <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 block">Due Date</Label>
+                                        <Input
+                                            className="h-11 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                                            type="date"
+                                            value={formData.due_date}
+                                            onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="flex gap-3 pt-2">
+                                        <Button
+                                            type="button"
+                                            variant="outlined"
+                                            className="flex-1 h-11 rounded-xl font-bold"
+                                            onClick={() => setIsCreateDialogOpen(false)}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            variant="contained"
+                                            className="flex-1 bg-[#2196F3] hover:bg-blue-600 h-11 rounded-xl font-bold shadow-lg"
+                                            disabled={loading}
+                                        >
+                                            {loading ? 'Creating...' : 'Create Payment'}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </CardContent>
+                        </Card>
                     </div>
-                </CardContent>
-            </Card>
+                )}
+            </div>
         </div>
     );
 }

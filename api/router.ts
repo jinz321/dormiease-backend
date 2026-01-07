@@ -10,6 +10,7 @@ import MessagingRoutes from './routes/MessagingRoutes';
 import NotificationRoutes from './routes/NotificationRoutes';
 import PaymentRoutes from './routes/PaymentRoutes';
 import ReportRoutes from './routes/ReportRoutes';
+import ReceiptRoutes from './routes/ReceiptRoutes';
 
 const router = express.Router();
 
@@ -23,5 +24,6 @@ router.use('/messaging', MessagingRoutes);
 router.use('/notification', NotificationRoutes);
 router.use('/payment', PaymentRoutes);
 router.use('/report', ReportRoutes);
+router.use('/receipts', ReceiptRoutes);
 
 export default router;

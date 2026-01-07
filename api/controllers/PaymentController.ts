@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { db } from "../config/firebase";
 import { parsePaginationParams, createPaginatedResponse } from "../utils/types";
+import { generateReceiptNumber } from "../utils/receiptTemplate";
 
 export class PaymentController {
 
@@ -254,6 +255,7 @@ export class PaymentController {
             // Simulate payment processing
             // In production, this would call Stripe/PayPal/etc API
             const transactionId = `TXN${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+            const receiptNumber = generateReceiptNumber();
 
             // Update payment record
             await paymentRef.update({
@@ -261,6 +263,7 @@ export class PaymentController {
                 payment_method,
                 paid_date: new Date().toISOString(),
                 transaction_id: transactionId,
+                receipt_number: receiptNumber,
                 updated_at: new Date().toISOString()
             });
 
